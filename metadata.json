@@ -1,0 +1,8 @@
+{
+  "name": "fitnessbunny",
+  "description": "A cute and vibrant meal and fitness tracking app.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}
