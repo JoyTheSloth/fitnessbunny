@@ -208,11 +208,11 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
                 <button
                   type="submit"
                   disabled={isProcessing || !input.trim()}
-                  className="flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-white active:scale-95 transition-all shadow-[0_10px_30px_rgba(126,217,87,0.3)] disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3.5 rounded-2xl font-black text-white active:scale-95 transition-all shadow-[0_10px_30px_rgba(126,217,87,0.3)] disabled:opacity-50"
                   style={{ background: `linear-gradient(135deg, ${COLORS.mint}, #B5FF9C)` }}
                 >
-                  {isProcessing ? <Activity className="animate-spin" size={20} /> : <ArrowRight size={24} />}
-                  <span className="text-sm uppercase tracking-widest">{isProcessing ? 'Analyzing' : 'Log Everything'}</span>
+                  {isProcessing ? <Activity className="animate-spin" size={18} /> : <ArrowRight size={20} />}
+                  <span className="text-[11px] uppercase tracking-[0.15em]">{isProcessing ? 'Analyzing' : 'Log Everything'}</span>
                 </button>
               </div>
             </form>

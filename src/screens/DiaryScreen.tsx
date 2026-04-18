@@ -251,28 +251,28 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
                 </motion.div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 items-center mb-10">
-                 {/* Main Gauge */}
-                 <div className="relative w-44 h-44 flex items-center justify-center">
+               <div className="grid grid-cols-2 gap-8 items-center mb-10">
+                 {/* Main Gauge - Slightly reduced for mobile breathing room */}
+                 <div className="relative w-36 h-36 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90">
-                      <circle className="text-[#eff3f4] stroke-current" cx="88" cy="88" r="75" strokeWidth="16" fill="none" />
+                      <circle className="text-[#eff3f4] stroke-current" cx="72" cy="72" r="62" strokeWidth="13" fill="none" />
                       <motion.circle 
-                        initial={{ strokeDashoffset: 471 }} 
-                        animate={{ strokeDashoffset: 471 - (471 * Math.min(totalFoodCals / goalCals, 1)) }} 
+                        initial={{ strokeDashoffset: 390 }} 
+                        animate={{ strokeDashoffset: 390 - (390 * Math.min(totalFoodCals / goalCals, 1)) }} 
                         className={`${remainingCals < 200 ? 'text-orange-400' : 'text-[#8de15c]'} stroke-current`} 
-                        cx="88" cy="88" r="75" strokeWidth="16" fill="none" 
-                        strokeDasharray="471" 
+                        cx="72" cy="72" r="62" strokeWidth="13" fill="none" 
+                        strokeDasharray="390" 
                         strokeLinecap="round" 
                       />
                     </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center -mt-2">
-                       <span className="text-4xl font-black text-[#3a4746] leading-none tracking-tighter">{remainingCals}</span>
-                       <span className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-[0.2em] mt-2">Remaining</span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center -mt-1">
+                       <span className="text-3xl font-black text-[#3a4746] leading-none tracking-tighter">{remainingCals}</span>
+                       <span className="text-[9px] font-black text-[#b9c3c1] uppercase tracking-[0.2em] mt-1.5">Left</span>
                     </div>
                  </div>
-
-                 {/* Stats column */}
-                 <div className="space-y-4 pr-2">
+ 
+                 {/* Stats column - increased spacing */}
+                 <div className="space-y-4 ml-6">
                     {[
                       { label: 'Goal', val: goalCals, i: Trophy, bg: 'bg-[#fff5eb]', c: 'text-[#ffa024]' },
                       { label: 'Food', val: totalFoodCals, i: Utensils, bg: 'bg-[#f0f7ff]', c: 'text-[#309af0]' },

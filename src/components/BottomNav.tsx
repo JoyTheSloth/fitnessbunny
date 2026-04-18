@@ -21,12 +21,12 @@ export default function BottomNav({ activeTab, setActiveTab }: { activeTab: stri
         
         if (tab.isMain) {
             return (
-                <div key={tab.id} className="relative -mt-10 flex flex-col items-center justify-center">
+                <div key={tab.id} className="relative -mt-9 flex flex-col items-center justify-center">
                     <button 
                       onClick={() => setActiveTab(tab.id)}
-                      className="flex items-center justify-center rounded-full w-[68px] h-[68px] bg-[#8de15c] text-white transform transition-all active:scale-95 border-[6px] border-white z-10"
+                      className="flex items-center justify-center rounded-full w-[62px] h-[62px] bg-[#8de15c] text-white transform transition-all active:scale-95 border-[5px] border-white z-10 shadow-lg"
                     >
-                      <Rabbit className="w-8 h-8" strokeWidth={3} />
+                      <Rabbit className="w-7 h-7" strokeWidth={3} />
                     </button>
                 </div>
             )
