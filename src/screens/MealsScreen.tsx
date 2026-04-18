@@ -41,7 +41,7 @@ const MOCK_RECIPES: Recipe[] = [
       'Spread mashed avocado onto the toast.',
       'Sprinkle with red pepper flakes and a drizzle of olive oil.'
     ],
-    macros: { carbs: 32, protein: 8, fat: 22 }
+    macros: { carbs: 32, protein: 8, fat: 22, fiber: 7 }
   },
   {
     id: '2',
@@ -60,7 +60,7 @@ const MOCK_RECIPES: Recipe[] = [
       'Place salmon and asparagus on a baking sheet.',
       'Brush salmon with glaze and bake for 12-15 minutes.'
     ],
-    macros: { carbs: 12, protein: 42, fat: 28 }
+    macros: { carbs: 12, protein: 42, fat: 28, fiber: 4 }
   },
   {
     id: '3',
@@ -79,7 +79,7 @@ const MOCK_RECIPES: Recipe[] = [
       'Assemble bowl with quinoa base and toppings.',
       'Drizzle with tahini dressing.'
     ],
-    macros: { carbs: 48, protein: 12, fat: 10 }
+    macros: { carbs: 48, protein: 12, fat: 10, fiber: 14 }
   },
   {
     id: '4',
@@ -97,7 +97,7 @@ const MOCK_RECIPES: Recipe[] = [
       'Bake at 425°F for 25-30 minutes until crispy.',
       'Flip halfway through cooking.'
     ],
-    macros: { carbs: 38, protein: 2, fat: 7 }
+    macros: { carbs: 38, protein: 2, fat: 7, fiber: 6 }
   },
   {
     id: '5',
@@ -115,7 +115,7 @@ const MOCK_RECIPES: Recipe[] = [
       'Adjust milk for desired consistency.',
       'Serve immediately.'
     ],
-    macros: { carbs: 18, protein: 24, fat: 4 }
+    macros: { carbs: 18, protein: 24, fat: 4, fiber: 5 }
   },
   {
     id: '6',
@@ -133,7 +133,7 @@ const MOCK_RECIPES: Recipe[] = [
       'Mix with quinoa, feta, and halved olives.',
       'Season with salt, pepper, and lemon juice.'
     ],
-    macros: { carbs: 54, protein: 14, fat: 16 }
+    macros: { carbs: 54, protein: 14, fat: 16, fiber: 11 }
   }
 ];
 
