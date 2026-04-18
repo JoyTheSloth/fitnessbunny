@@ -22,6 +22,7 @@ interface Macros {
 export interface MealEntry {
   id: string;
   name: string;
+  emoji?: string;
   calories: number;
   carbs: number;
   protein: number;
