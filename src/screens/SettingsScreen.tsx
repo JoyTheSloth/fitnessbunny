@@ -8,13 +8,13 @@ import {
 import { useUser } from '../context/UserContext';
 
 export default function SettingsScreen() {
-  const { biometrics } = useUser();
+  const { biometrics, profile } = useUser();
 
   const MENU_SECTIONS = [
     {
       title: "Sanctuary Account",
       items: [
-        { icon: User, label: "Profile Details", value: biometrics.name || "Bunny User", color: "text-[#309af0]" },
+        { icon: User, label: "Profile Details", value: profile.name || "Bunny User", color: "text-[#309af0]" },
         { icon: Sparkles, label: "Premium Status", value: "Legendary", color: "text-[#ffa024]" },
         { icon: Shield, label: "Privacy & DNA", color: "text-[#8de15c]" },
       ]
@@ -63,10 +63,10 @@ export default function SettingsScreen() {
             className="flex items-center gap-5 p-6 bg-white/10 backdrop-blur-3xl rounded-[2.5rem] border border-white/20 shadow-2xl"
           >
             <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#8de15c] to-[#309af0] flex items-center justify-center text-white text-2xl font-black shadow-lg">
-              {biometrics.name?.[0] || 'B'}
+              {profile.name?.[0] || 'B'}
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-black text-white leading-tight">{biometrics.name || "Bunny User"}</h2>
+              <h2 className="text-xl font-black text-white leading-tight">{profile.name || "Bunny User"}</h2>
               <p className="text-xs font-bold text-white/60 mt-0.5">Physicality Level: Prime</p>
             </div>
             <button className="p-3 bg-white/20 rounded-2xl text-white hover:bg-white/30 transition-all">
