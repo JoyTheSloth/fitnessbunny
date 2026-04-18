@@ -62,7 +62,7 @@ export default function ScanScreen({ closeScan }: { closeScan: () => void }) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`
           },
           body: JSON.stringify({
             model: "llama-3.2-11b-vision-preview",

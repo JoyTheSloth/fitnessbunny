@@ -103,7 +103,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
     try {
       const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}` },
         body: JSON.stringify({
           model: "llama-3.3-70b-versatile",
           messages: [{ role: "system", content: "Estimate calories. Return JSON: { \"calories\": number }" }, { role: "user", content: `Activity: ${exForm.name}, Duration: ${exForm.duration}` }],

@@ -40,7 +40,7 @@ export default function AddScreen({ initialCategory = 'Breakfast', onBack, onSca
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`
         },
         body: JSON.stringify({
           model: "llama-3.3-70b-versatile",

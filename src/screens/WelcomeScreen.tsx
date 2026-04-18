@@ -81,7 +81,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                    <Carrot size={20} className="text-[#FFA024]" fill="#FFA024" />
                 </div>
                 <h1 className="text-3xl font-black text-white tracking-tight leading-tight">
-                  Hi, I am <span className="text-[#FFA024]">Fitness</span> <span className="text-[#7ED957]">Bunny</span>
+                  Hi, I am <span className="text-[#FFA024]">Fitness</span><span className="text-[#7ED957]">Buddy</span>
                 </h1>
                 <p className="text-sm font-extrabold text-white/90 max-w-[260px] mx-auto leading-normal">
                   Your personal calorie calculator and workout companion.

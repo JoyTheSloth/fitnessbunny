@@ -282,7 +282,7 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
               meals.slice(0, 3).map((meal, i) => (
                 <div key={meal.id} className="flex items-center gap-4 group/item">
                   <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-50 shadow-inner">
-                    {meal.emoji}
+                    {meal.emoji || '🥕'}
                   </div>
                   <div className="flex-grow">
                     <h6 className="text-sm font-bold text-gray-900">{meal.name}</h6>
@@ -311,7 +311,7 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
             >
               <div className="flex items-center gap-5">
                 <div className="flex-shrink-0 w-16 h-16 rounded-3xl flex items-center justify-center text-4xl bg-gray-50 border border-gray-100">
-                  {lastLogged.emoji}
+                  {lastLogged.emoji || '🥕'}
                 </div>
                 <div className="flex-grow">
                   <p className="text-[10px] tracking-[0.4em] font-black text-gray-300 uppercase mb-1">Telemetry Logged</p>
