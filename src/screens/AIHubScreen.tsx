@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Mic, Camera, Sparkles, Search, ArrowRight, Lightbulb } from 'lucide-react';
-import { useUser } from '../context/UserContext';
+import { Mic, Camera, Sparkles, ChevronRight } from 'lucide-react';
 
 interface AIHubScreenProps {
   onNavigateToScan: () => void;
@@ -10,7 +9,6 @@ interface AIHubScreenProps {
 }
 
 export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHubScreenProps) {
-  const { profile } = useUser();
   const [input, setInput] = useState("");
   const [greeting, setGreeting] = useState("Good afternoon");
 
