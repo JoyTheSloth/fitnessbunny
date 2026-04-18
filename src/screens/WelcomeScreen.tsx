@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSession, signIn } from 'next-auth/react';
+import Image from 'next/image';
 import { 
   ArrowRight,
   Brain,
@@ -44,10 +45,12 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         transition={{ duration: 1.5 }}
         className="absolute inset-0 z-0 overflow-hidden"
       >
-        <img 
+        <Image 
           src="/3.png" 
           alt="Celestial Space" 
-          className="w-full h-full object-cover opacity-80" 
+          fill
+          priority
+          className="object-cover opacity-80" 
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A1F]/40 via-transparent to-[#0A0A1F]/90" />
       </motion.div>
@@ -87,9 +90,9 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
               <motion.div 
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="w-32 h-32 mx-auto bg-white rounded-[2.5rem] flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.1)] border-4 border-white relative overflow-hidden"
+                className="relative w-32 h-32 mx-auto bg-white rounded-[2.5rem] flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.1)] border-4 border-white overflow-hidden"
               >
-                 <img src="/logo.png" alt="Bunny" className="w-full h-full object-contain p-2" />
+                 <Image src="/logo.png" alt="Bunny" width={128} height={128} className="object-contain p-2" priority />
               </motion.div>
               
               <div className="space-y-4">

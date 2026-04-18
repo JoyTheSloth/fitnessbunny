@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Egg, Sparkles, Flame, Apple, ChevronLeft, ChevronRight, Utensils, Leaf } from 'lucide-react';
 import { motion } from 'motion/react';
+import Image from 'next/image';
 import { useUser } from '../context/UserContext';
 import CuteCalendarModal from '../components/CuteCalendarModal';
 
@@ -33,9 +34,12 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
   return (
     <div className="h-full relative overflow-hidden">
       {/* Insights Sanctuary Background */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
-        style={{ backgroundImage: "url('/10.png')" }}
+      <Image 
+        src="/10.png" 
+        alt="Insights Background" 
+        fill
+        priority
+        className="object-cover object-center z-0" 
       />
       
       {/* Soft Overlay */}

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import Image from 'next/image';
 import { ChefHat, Search, Filter, Ghost, ChevronLeft, ChevronRight, Sparkles, Clock, Flame, Heart, PlayCircle, BrainCircuit, Loader2, Plus, ArrowRight, Utensils } from 'lucide-react';
 import { generateRecipesAI } from '../services/aiService';
 interface Recipe {
@@ -215,10 +216,12 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
     return (
       <div className="h-full overflow-y-auto bg-white">
         <div className="relative h-[45vh] w-full">
-          <img 
+          <Image 
             src={selectedRecipe.image} 
             alt={selectedRecipe.name} 
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent"></div>
           
@@ -315,9 +318,12 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
   return (
     <div className="h-full relative overflow-hidden">
       {/* Recipe Sanctuary Background */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
-        style={{ backgroundImage: "url('/11.png')" }}
+      <Image 
+        src="/11.png" 
+        alt="Recipes Background" 
+        fill
+        priority
+        className="object-cover object-center z-0" 
       />
       
       {/* Soft Overlay */}
@@ -459,7 +465,7 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
                     className="flex-shrink-0 w-48 bg-[#f8fafb] p-3 rounded-2xl border border-[#e2e8e9] group cursor-pointer"
                   >
                     <div className="h-24 rounded-xl overflow-hidden mb-2 relative">
-                       <img src={r.image} alt={r.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                       <Image src={r.image} alt={r.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
                        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md text-[8px] font-black text-[#8de15c]">AI CHOICE</div>
                        {r.coreEmojis && (
                          <div className="absolute top-2 left-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-lg text-xs shadow-lg">
@@ -494,7 +500,12 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
                   className="bg-white rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/80 group hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all cursor-pointer"
                 >
                   <div className="relative h-48 overflow-hidden">
-                    <img src={recipe.image} alt={recipe.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <Image 
+                      src={recipe.image} 
+                      alt={recipe.name} 
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                    />
                     {recipe.coreEmojis && (
                       <div className="absolute top-4 left-4 bg-black/20 backdrop-blur-md px-3 py-1.5 rounded-xl text-lg shadow-xl z-20">
                          {recipe.coreEmojis}

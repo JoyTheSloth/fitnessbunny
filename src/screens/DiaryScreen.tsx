@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import Image from 'next/image';
 import { 
   ChevronLeft, ChevronRight, ChevronRight as ChevronRightSm, Trophy, Utensils, 
   Flame, Camera, Plus, Scale, Sparkles, Heart, X, Trash2, Clock, Activity, 
@@ -195,9 +196,12 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
   return (
     <div className="relative h-full overflow-hidden">
       {/* Diary Sanctuary Background */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
-        style={{ backgroundImage: "url('/10.png')" }}
+      <Image 
+        src="/diary_bg.png" 
+        alt="Diary Background" 
+        fill
+        priority
+        className="object-cover object-center z-0" 
       />
 
       <div className="absolute inset-0 z-10">

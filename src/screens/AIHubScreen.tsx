@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import Image from 'next/image';
 import { 
   Sparkles, 
   Brain,
@@ -116,9 +117,12 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
   return (
     <div className="h-full relative overflow-hidden font-jakarta">
       {/* AI Hub Sanctuary Background */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
-        style={{ backgroundImage: "url('/bg.png')" }}
+      <Image 
+        src="/bg.png" 
+        alt="Sanctuary Background" 
+        fill
+        priority
+        className="object-cover object-center z-0" 
       />
       
       {/* Soft Overlay */}
@@ -147,8 +151,8 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
               animate={{ scale: 1, opacity: 1 }}
               className="inline-block"
             >
-              <div className="w-28 h-28 mx-auto bg-white rounded-[2.5rem] flex items-center justify-center shadow-xl border border-white/80 relative overflow-hidden group">
-                 <img src="/logo.png" alt="Bunny" className="w-full h-full object-contain relative z-10" />
+              <div className="relative w-28 h-28 mx-auto bg-white rounded-[2.5rem] flex items-center justify-center shadow-xl border border-white/80 overflow-hidden">
+                 <Image src="/logo.png" alt="Bunny" width={112} height={112} className="object-contain relative z-10" />
               </div>
             </motion.div>
             
