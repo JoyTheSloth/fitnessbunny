@@ -290,7 +290,7 @@ export default function PremiumScreen({ onClose }: { onClose: () => void }) {
                                 strokeLinecap="round" 
                              />
                              <circle cx="50" cy="60" r="3" fill="#ffa024" />
-                             <circle cx="100" cy="20" r="4" fill="#8de15c" shadow="0 0 10px #8de15c" />
+                             <circle cx="100" cy="20" r="4" fill="#8de15c" style={{ filter: 'drop-shadow(0 0 4px #8de15c)' }} />
                           </svg>
                           
                           <div className="absolute top-[20%] right-0 bg-[#8de15c] text-white px-3 py-1.5 rounded-xl font-black text-xs shadow-lg uppercase tracking-tighter animate-bounce">
