@@ -89,8 +89,7 @@ export default function AddScreen({ initialCategory = 'Breakfast', onBack, onSca
       protein: parseInt(mealForm.protein || '0'),
       fat: parseInt(mealForm.fat || '0'),
       fiber: parseInt(mealForm.fiber || '0'),
-      type: activeTab as any,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      type: activeTab as any
     });
 
     onBack();

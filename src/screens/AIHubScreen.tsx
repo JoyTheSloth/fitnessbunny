@@ -87,7 +87,6 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
       if (items && Array.isArray(items)) {
         items.forEach(item => {
           const mealData = {
-            id: Date.now().toString() + Math.random(),
             name: item.name || "Unknown item",
             calories: item.calories || 0,
             protein: item.protein || 0,
@@ -95,11 +94,10 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
             fat: item.fat || 0,
             fiber: item.fiber || 0,
             type: 'Lunch' as any,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             emoji: '🐰'
           };
           addMeal(mealData);
-          setLastLogged(mealData);
+          setLastLogged({ ...mealData, id: 'temp', time: 'Just now' }); // Keep for UI feedback
         });
         
         setShowSuccess(true);
