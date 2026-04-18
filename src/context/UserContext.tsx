@@ -31,6 +31,7 @@ export interface MealEntry {
   sugar?: number;
   sodium?: number;
   time: string;
+  fullDate: string; // ISO Date YYYY-MM-DD
   type: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
 }
 
@@ -40,6 +41,7 @@ export interface ExerciseEntry {
   calories: number;
   duration: string;
   time: string;
+  fullDate: string; // ISO Date YYYY-MM-DD
 }
 
 export interface WeightLog {
@@ -60,10 +62,10 @@ interface UserContextType {
   updateBiometrics: (biometrics: Partial<Biometrics>) => void;
   updateMacros: (macros: Partial<Macros>) => void;
   updateGoal: (goal: string) => void;
-  addMeal: (meal: Omit<MealEntry, 'id' | 'time'>) => void;
+  addMeal: (meal: Omit<MealEntry, 'id' | 'time' | 'fullDate'>, date?: string) => void;
   deleteMeal: (id: string) => void;
-  addExercise: (exercise: Omit<ExerciseEntry, 'id' | 'time'>) => void;
-  addWeightLog: (weight: number) => void;
+  addExercise: (exercise: Omit<ExerciseEntry, 'id' | 'time' | 'fullDate'>, date?: string) => void;
+  addWeightLog: (weight: number, date?: string) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -180,11 +182,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setGoal(newGoal);
   };
 
-  const addMeal = (meal: Omit<MealEntry, 'id' | 'time'>) => {
+  const addMeal = (meal: Omit<MealEntry, 'id' | 'time' | 'fullDate'>, date?: string) => {
     const newMeal: MealEntry = {
       ...meal,
       id: Math.random().toString(36).substr(2, 9),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      fullDate: date || new Date().toISOString().split('T')[0]
     };
     setMeals(prev => [newMeal, ...prev]);
   };
@@ -193,17 +196,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setMeals(prev => prev.filter(m => m.id !== id));
   };
 
-  const addExercise = (ex: Omit<ExerciseEntry, 'id' | 'time'>) => {
+  const addExercise = (ex: Omit<ExerciseEntry, 'id' | 'time' | 'fullDate'>, date?: string) => {
     const newEx: ExerciseEntry = {
       ...ex,
       id: Math.random().toString(36).substr(2, 9),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      fullDate: date || new Date().toISOString().split('T')[0]
     };
     setExercises(prev => [newEx, ...prev]);
   };
 
-  const addWeightLog = (weight: number) => {
-    setWeightLogs(prev => [{ date: new Date().toISOString(), weight }, ...prev]);
+  const addWeightLog = (weight: number, date?: string) => {
+    setWeightLogs(prev => [{ 
+      date: date || new Date().toISOString(), 
+      weight 
+    }, ...prev]);
   };
 
   return (
