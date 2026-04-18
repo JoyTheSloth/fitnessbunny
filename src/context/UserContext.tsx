@@ -69,40 +69,57 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [profile, setProfile] = useState<UserProfile>({ 
-    name: 'Shivani Sah', 
-    email: 'shivani@bunny.ai' 
-  });
-  
-  const [biometrics, setBiometrics] = useState<Biometrics>({ 
-    height: '170', 
-    weight: '72.0', 
-    age: '22', 
-    gender: 'Female' 
-  });
+  // Initial States - Neutralized for Practicality
+  const [profile, setProfile] = useState<UserProfile>({ name: '', email: '' });
+  const [biometrics, setBiometrics] = useState<Biometrics>({ height: '', weight: '', age: '', gender: '' });
+  const [macros, setMacros] = useState<Macros>({ carbs: '', protein: '', fat: '' });
+  const [goal, setGoal] = useState('');
+  const [meals, setMeals] = useState<MealEntry[]>([]);
+  const [exercises, setExercises] = useState<ExerciseEntry[]>([]);
+  const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
+  const [dynamicTargets, setDynamicTargets] = useState({ cals: 2000, carbs: 250, protein: 125, fat: 67 });
 
-  const [macros, setMacros] = useState<Macros>({
-    carbs: '181',
-    protein: '66',
-    fat: '36'
-  });
+  // Persistence Engine: Rehydration (Load from LocalStorage)
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('fb_profile');
+    const savedBio = localStorage.getItem('fb_biometrics');
+    const savedMeals = localStorage.getItem('fb_meals');
+    const savedExercises = localStorage.getItem('fb_exercises');
+    const savedWeight = localStorage.getItem('fb_weightLogs');
+    const savedGoal = localStorage.getItem('fb_goal');
 
-  const [goal, setGoal] = useState('Lose 1 kilograms per week');
-  
-  const [meals, setMeals] = useState<MealEntry[]>([
-    { id: '1', name: 'Avocado Toast', calories: 342, carbs: 32, protein: 8, fat: 22, time: '08:30 AM', type: 'Breakfast' },
-    { id: '2', name: 'Greek Yogurt with Berries', calories: 210, carbs: 18, protein: 24, fat: 4, time: '10:15 AM', type: 'Breakfast' }
-  ]);
+    if (savedProfile) setProfile(JSON.parse(savedProfile));
+    if (savedBio) setBiometrics(JSON.parse(savedBio));
+    if (savedMeals) setMeals(JSON.parse(savedMeals));
+    if (savedExercises) setExercises(JSON.parse(savedExercises));
+    if (savedWeight) setWeightLogs(JSON.parse(savedWeight));
+    if (savedGoal) setGoal(savedGoal);
+  }, []);
 
-  const [exercises, setExercises] = useState<ExerciseEntry[]>([
-    { id: '1', name: 'Morning Run', calories: 320, duration: '30 min', time: '06:30 AM' }
-  ]);
+  // Persistence Engine: Dehydration (Save to LocalStorage)
+  useEffect(() => {
+    if (profile.name) localStorage.setItem('fb_profile', JSON.stringify(profile));
+  }, [profile]);
 
-  const [weightLogs, setWeightLogs] = useState<WeightLog[]>([
-    { date: new Date().toISOString(), weight: 72.0 }
-  ]);
+  useEffect(() => {
+    if (biometrics.weight) localStorage.setItem('fb_biometrics', JSON.stringify(biometrics));
+  }, [biometrics]);
 
-  const [dynamicTargets, setDynamicTargets] = useState({ cals: 1800, carbs: 200, protein: 120, fat: 60 });
+  useEffect(() => {
+    localStorage.setItem('fb_meals', JSON.stringify(meals));
+  }, [meals]);
+
+  useEffect(() => {
+    localStorage.setItem('fb_exercises', JSON.stringify(exercises));
+  }, [exercises]);
+
+  useEffect(() => {
+    localStorage.setItem('fb_weightLogs', JSON.stringify(weightLogs));
+  }, [weightLogs]);
+
+  useEffect(() => {
+    if (goal) localStorage.setItem('fb_goal', goal);
+  }, [goal]);
 
   useEffect(() => {
     // Mifflin-St Jeor Formula
@@ -114,7 +131,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     let bmr = (10 * w) + (6.25 * h) - (5 * a);
     bmr = biometrics.gender === 'Male' ? bmr + 5 : bmr - 161;
 
-    // TDEE (Assume moderate activity multiplier of 1.375 for active users or 1.2 for sedentary)
+    // TDEE (Assume moderate activity multiplier)
     const multiplier = 1.375;
     let tdee = bmr * multiplier;
 
@@ -127,10 +144,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const floor = biometrics.gender === 'Male' ? 1500 : 1200;
     targetCals = Math.max(targetCals, floor);
 
-    // Macro Split (High Protein for health/gain, balanced for maintenance)
-    let pRatio = 0.3; // 30% Protein
-    let cRatio = 0.45; // 45% Carbs
-    let fRatio = 0.25; // 25% Fat
+    // Macro Split
+    let pRatio = 0.3; 
+    let cRatio = 0.45;
+    let fRatio = 0.25;
 
     if (goal.toLowerCase().includes('gain')) {
       pRatio = 0.35; cRatio = 0.45; fRatio = 0.2;
