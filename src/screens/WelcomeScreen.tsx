@@ -24,15 +24,16 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
     setHasMounted(true);
   }, []);
 
-  // Auto-start if Google Session is active
-  useEffect(() => {
+  const handleEntry = () => {
     if (session?.user?.name && session?.user?.email) {
       setIsTransitioning(true);
       setTimeout(() => {
-        onStart(session.user!.name!, session.user!.email!);
+        onStart(session.user.name!, session.user.email!);
       }, 500);
+    } else {
+      signIn('google');
     }
-  }, [session, onStart]);
+  };
 
   return (
     <div className="h-[100dvh] w-full relative overflow-hidden bg-[#0A0A1F] font-jakarta flex flex-col items-center justify-between p-6 py-12 lg:py-24">
@@ -106,7 +107,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => signIn('google')}
+                onClick={handleEntry}
                 className="w-full group relative p-6 rounded-full font-black text-white uppercase tracking-[0.15em] transition-all shadow-[0_30px_60px_rgba(0,0,0,0.3)] overflow-hidden"
               >
                 {/* Reference-style Button Background */}
@@ -121,7 +122,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
                   </div>
-                  <span className="text-sm">Continue with Google</span>
+                  <span className="text-sm">{session ? 'Logged In: Continue' : 'Continue with Google'}</span>
                 </div>
               </motion.button>
             </div>

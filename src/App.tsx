@@ -28,10 +28,8 @@ function AppContent() {
   React.useEffect(() => {
     if (status === 'unauthenticated') {
       setHasOnboarded(false);
-    } else if (status === 'authenticated' && profile.name) {
-      setHasOnboarded(true);
     }
-  }, [status, profile.name]);
+  }, [status]);
 
   // Overlay states
   const [showScan, setShowScan] = useState(false);
