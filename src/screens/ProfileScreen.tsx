@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '../context/UserContext';
+import { signOut } from 'next-auth/react';
 import {
   Settings,
   Mail,
@@ -201,10 +202,13 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
             <ChevronRight size={18} className="text-gray-300" />
           </button>
           <div className="h-px bg-gray-50 ml-16" />
-          <button className="w-full flex items-center justify-between p-6 hover:bg-red-50 transition-colors group">
+          <button 
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="w-full flex items-center justify-between p-6 hover:bg-red-50 transition-colors group"
+          >
             <div className="flex items-center gap-4 text-red-500">
               <LogOut size={18} className="opacity-50 group-hover:opacity-100" />
-              <span className="text-sm font-black uppercase tracking-widest">Sever Connection</span>
+              <span className="text-sm font-black uppercase tracking-widest">Server Connection</span>
             </div>
           </button>
         </div>

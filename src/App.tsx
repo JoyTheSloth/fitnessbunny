@@ -13,11 +13,23 @@ import WelcomeScreen from './screens/WelcomeScreen';
 import { UserProvider, useUser } from './context/UserContext';
 import { AnimatePresence } from 'motion/react';
 
+import { useSession } from 'next-auth/react';
+
 function AppContent() {
+  const { data: session, status } = useSession();
   const { profile, updateProfile } = useUser();
   const [hasOnboarded, setHasOnboarded] = useState(false);
   const [activeTab, setActiveTab] = useState('diary');
   const [targetCategory, setTargetCategory] = useState('Breakfast');
+
+  // Sync state with session status
+  React.useEffect(() => {
+    if (status === 'unauthenticated') {
+      setHasOnboarded(false);
+    } else if (status === 'authenticated' && profile.name) {
+      setHasOnboarded(true);
+    }
+  }, [status, profile.name]);
 
   // Overlay states
   const [showScan, setShowScan] = useState(false);
