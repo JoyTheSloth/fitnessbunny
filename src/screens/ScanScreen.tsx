@@ -134,8 +134,7 @@ export default function ScanScreen({ closeScan }: { closeScan: () => void }) {
       fiber: result.totals.fiber,
       sugar: result.totals.sugar,
       sodium: result.totals.sodium,
-      type: 'Lunch', // Default to lunch for scans
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      type: 'Lunch' // Default to lunch for scans
     });
     closeScan();
   };
