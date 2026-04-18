@@ -10,8 +10,10 @@ import ScanScreen from './screens/ScanScreen';
 import PremiumScreen from './screens/PremiumScreen';
 import AIHubScreen from './screens/AIHubScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
+import SettingsScreen from './screens/SettingsScreen';
 import { UserProvider, useUser } from './context/UserContext';
 import { AnimatePresence } from 'motion/react';
+import AIAssistant from './components/AIAssistant';
 
 import { useSession } from 'next-auth/react';
 

@@ -313,12 +313,22 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
   }
 
   return (
-    <div className="h-full overflow-y-auto">
-      <header className="fixed top-0 left-0 w-full z-40 bg-transparent pt-8 pb-3 px-4 shadow-none">
-        <div className="flex items-center justify-center gap-4 relative max-w-2xl mx-auto">
-          <ChevronLeft className="w-5 h-5 text-[#3a4746]" />
-          <h1 className="text-xl font-black text-[#3a4746] tracking-tight">Library</h1>
-          <ChevronRight className="w-5 h-5 text-[#b9c3c1]" />
+    <div className="h-full relative overflow-hidden">
+      {/* Recipe Sanctuary Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
+        style={{ backgroundImage: "url('/11.png')" }}
+      />
+      
+      {/* Soft Overlay */}
+      <div className="absolute inset-0 z-10 bg-black/5 backdrop-blur-[1px]" />
+
+      <div className="relative z-20 h-full overflow-y-auto pt-8 pb-32">
+      <header className="w-full z-40 bg-transparent mb-3 px-4 shadow-none">
+        <div className="flex items-center justify-center gap-6 relative max-w-2xl mx-auto">
+          <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 text-[#3a4746] transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+          <h1 className="text-lg font-black text-[#3a4746] tracking-tight">Recipes</h1>
+          <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 text-[#b9c3c1] transition-colors"><ChevronRight className="w-5 h-5" /></button>
           
           <button onClick={onOpenPremium} className="absolute right-0 top-1/2 -translate-y-1/2 bg-gradient-to-r from-[#ffa024] to-[#f55938] text-white text-[10px] uppercase font-extrabold px-3 py-1.5 rounded-full shadow-[0_4px_10px_rgba(255,160,36,0.3)] hover:-translate-y-[calc(50%+1px)] transition-transform flex items-center gap-1 active:scale-95">
             <Sparkles className="w-3 h-3" fill="currentColor" /> Premium
@@ -326,8 +336,8 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
         </div>
       </header>
 
-      <main className="pt-24 px-6 max-w-2xl mx-auto space-y-8 pb-32">
-        <div className="space-y-4">
+      <main className="px-6 max-w-2xl mx-auto space-y-8">
+        <div className="space-y-4 pt-8">
           <div className="flex gap-3">
               <div className="flex-1 bg-white border border-white/80 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex items-center px-5 py-3 rounded-[1.5rem] gap-3 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                   <Search className="w-5 h-5 text-zinc-400" />
@@ -394,10 +404,10 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="bg-white rounded-[2.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white space-y-5"
+          className="bg-[#f7fff9] rounded-[2.5rem] p-7 shadow-[0_8px_30px_rgba(141,225,92,0.1)] border border-white space-y-5"
         >
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-[#309af0]/10 rounded-2xl flex items-center justify-center text-[#309af0]"><Utensils className="w-5 h-5" /></div>
+             <div className="w-10 h-10 bg-[#8de15c]/10 rounded-2xl flex items-center justify-center text-[#8de15c]"><Utensils className="w-5 h-5" /></div>
              <div>
                <h3 className="font-black text-[#3a4746] text-lg leading-tight">Recipe Creator</h3>
                <p className="text-[10px] font-extrabold text-[#89979b] uppercase tracking-widest">AI Culinary Assistant</p>
@@ -409,14 +419,14 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
               value={ingredients}
               onChange={(e) => setIngredients(e.target.value)}
               placeholder="List your ingredients... (e.g. egg, bread, butter)"
-              className="w-full h-24 bg-[#f8fafb] border border-[#e2e8e9] rounded-2xl p-4 text-sm font-bold text-[#3a4746] placeholder-[#b9c3c1] resize-none outline-none focus:ring-2 focus:ring-[#309af0]/20 transition-all"
+              className="w-full h-24 bg-white border border-[#e2e8e9] rounded-2xl p-4 text-sm font-bold text-[#3a4746] placeholder-[#b9c3c1] resize-none outline-none focus:ring-2 focus:ring-[#8de15c]/20 transition-all"
             />
             
             <motion.button 
               whileTap={{ scale: 0.98 }}
               onClick={handleGenerate}
               disabled={isGenerating}
-              className="w-full bg-[#309af0] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-[#309af0]/20 flex items-center justify-center gap-3 hover:brightness-105 disabled:opacity-50"
+              className="w-full bg-[#8de15c] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-[#8de15c]/20 flex items-center justify-center gap-3 hover:brightness-105 disabled:opacity-50"
             >
               {isGenerating ? (
                 <>
@@ -450,7 +460,7 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
                   >
                     <div className="h-24 rounded-xl overflow-hidden mb-2 relative">
                        <img src={r.image} alt={r.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                       <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md text-[8px] font-black text-[#309af0]">AI CHOICE</div>
+                       <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md text-[8px] font-black text-[#8de15c]">AI CHOICE</div>
                        {r.coreEmojis && (
                          <div className="absolute top-2 left-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-lg text-xs shadow-lg">
                             {r.coreEmojis}
@@ -460,7 +470,7 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
                     <h4 className="font-extrabold text-[#3a4746] text-xs leading-tight mb-1 truncate">{r.name}</h4>
                     <div className="flex justify-between items-center">
                        <span className="text-[9px] font-black text-[#89979b]">{r.calories} kcal</span>
-                       <Plus className="w-3.5 h-3.5 text-[#309af0]" />
+                       <Plus className="w-3.5 h-3.5 text-[#8de15c]" />
                     </div>
                   </motion.div>
                 ))}
@@ -545,6 +555,7 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
         </div>
       </main>
     </div>
-  );
+  </div>
+);
 }
 

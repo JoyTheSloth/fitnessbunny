@@ -46,7 +46,7 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
   };
 
   const renderHeader = (title: string, showBack: boolean = false) => (
-    <header className="fixed top-0 left-0 w-full z-40 bg-[#F9FAFB]/80 backdrop-blur-xl pt-12 pb-6 px-6 border-b border-black/5">
+    <header className="w-full z-40 bg-transparent backdrop-blur-md pb-6 px-6 border-b border-white/10">
       <div className="max-w-xl mx-auto flex items-center justify-between">
         {showBack ? (
           <button 
@@ -344,18 +344,29 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
   );
 
   return (
-    <div className="h-full bg-[#F9FAFB] font-jakarta">
-      {renderHeader(currentPage === 'main' ? 'Command' : currentPage, currentPage !== 'main')}
+    <div className="relative h-full overflow-hidden font-poppins">
+      {/* Background Imagery */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat" 
+        style={{ backgroundImage: "url('/11.png')" }}
+      />
+      
+      {/* Soft Overlay */}
+      <div className="absolute inset-0 z-10 bg-black/5 backdrop-blur-[2px]" />
 
-      <main className="pt-36 px-6 max-w-xl mx-auto pb-40 overflow-y-auto h-full scrollbar-hide">
-        <AnimatePresence mode="wait">
-          {currentPage === 'main' && renderMainSettings()}
-          {currentPage === 'biometrics' && renderBiometrics()}
-          {currentPage === 'macros' && renderMacros()}
-          {currentPage === 'activity' && renderActivity()}
-          {currentPage === 'theme' && renderTheme()}
-        </AnimatePresence>
-      </main>
+      <div className="relative z-20 h-full overflow-y-auto scrollbar-hide pt-12 pb-40">
+        {renderHeader(currentPage === 'main' ? 'Command' : currentPage, currentPage !== 'main')}
+
+        <main className="px-6 max-w-xl mx-auto mt-8">
+          <AnimatePresence mode="wait">
+            {currentPage === 'main' && renderMainSettings()}
+            {currentPage === 'biometrics' && renderBiometrics()}
+            {currentPage === 'macros' && renderMacros()}
+            {currentPage === 'activity' && renderActivity()}
+            {currentPage === 'theme' && renderTheme()}
+          </AnimatePresence>
+        </main>
+      </div>
     </div>
   );
 }

@@ -49,6 +49,11 @@ export interface WeightLog {
   weight: number;
 }
 
+export interface WaterLog {
+  date: string;
+  glasses: number;
+}
+
 interface UserContextType {
   profile: UserProfile;
   biometrics: Biometrics;
@@ -57,6 +62,7 @@ interface UserContextType {
   meals: MealEntry[];
   exercises: ExerciseEntry[];
   weightLogs: WeightLog[];
+  waterLogs: WaterLog[];
   dynamicTargets: { cals: number; carbs: number; protein: number; fat: number };
   updateProfile: (profile: Partial<UserProfile>) => void;
   updateBiometrics: (biometrics: Partial<Biometrics>) => void;
@@ -66,6 +72,7 @@ interface UserContextType {
   deleteMeal: (id: string) => void;
   addExercise: (exercise: Omit<ExerciseEntry, 'id' | 'time' | 'fullDate'>, date?: string) => void;
   addWeightLog: (weight: number, date?: string) => void;
+  updateWater: (glasses: number, date?: string) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -79,6 +86,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [meals, setMeals] = useState<MealEntry[]>([]);
   const [exercises, setExercises] = useState<ExerciseEntry[]>([]);
   const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
+  const [waterLogs, setWaterLogs] = useState<WaterLog[]>([]);
   const [dynamicTargets, setDynamicTargets] = useState({ cals: 2000, carbs: 250, protein: 125, fat: 67 });
 
   // Persistence Engine: Rehydration (Load from LocalStorage)
@@ -88,6 +96,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const savedMeals = localStorage.getItem('fb_meals');
     const savedExercises = localStorage.getItem('fb_exercises');
     const savedWeight = localStorage.getItem('fb_weightLogs');
+    const savedWater = localStorage.getItem('fb_waterLogs');
     const savedGoal = localStorage.getItem('fb_goal');
 
     if (savedProfile) setProfile(JSON.parse(savedProfile));
@@ -95,6 +104,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (savedMeals) setMeals(JSON.parse(savedMeals));
     if (savedExercises) setExercises(JSON.parse(savedExercises));
     if (savedWeight) setWeightLogs(JSON.parse(savedWeight));
+    if (savedWater) setWaterLogs(JSON.parse(savedWater));
     if (savedGoal) setGoal(savedGoal);
   }, []);
 
@@ -118,6 +128,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem('fb_weightLogs', JSON.stringify(weightLogs));
   }, [weightLogs]);
+
+  useEffect(() => {
+    localStorage.setItem('fb_waterLogs', JSON.stringify(waterLogs));
+  }, [waterLogs]);
 
   useEffect(() => {
     if (goal) localStorage.setItem('fb_goal', goal);
@@ -213,11 +227,22 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }, ...prev]);
   };
 
+  const updateWater = (glasses: number, date?: string) => {
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    setWaterLogs(prev => {
+      const existing = prev.find(l => l.date === targetDate);
+      if (existing) {
+        return prev.map(l => l.date === targetDate ? { ...l, glasses } : l);
+      }
+      return [{ date: targetDate, glasses }, ...prev];
+    });
+  };
+
   return (
     <UserContext.Provider value={{ 
-      profile, biometrics, macros, goal, meals, exercises, weightLogs, dynamicTargets,
+      profile, biometrics, macros, goal, meals, exercises, weightLogs, waterLogs, dynamicTargets,
       updateProfile, updateBiometrics, updateMacros, updateGoal,
-      addMeal, deleteMeal, addExercise, addWeightLog
+      addMeal, deleteMeal, addExercise, addWeightLog, updateWater
     }}>
       {children}
     </UserContext.Provider>

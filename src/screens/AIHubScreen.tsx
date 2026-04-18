@@ -3,36 +3,27 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, 
-  ArrowRight,
   Brain,
-  CircleDot,
   Orbit,
-  Dna,
-  ShieldCheck,
   History,
-  TrendingUp,
   Activity,
   Mic,
-  Camera,
   ChevronRight,
   Lightbulb,
   Utensils,
   Carrot,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
-import { analyzeMeal } from '../services/aiService';
 
 // Luminous Sanctuary Design Tokens
 const COLORS = {
   background: '#F9FAFB',
-  text: '#1A1A1C',
+  text: '#3a4746',
   mint: '#7ED957',
   lavender: '#A78BFA',
-  glass: 'rgba(255, 255, 255, 0.7)',
-  glassBorder: 'rgba(0, 0, 0, 0.05)',
   accentMint: 'rgba(126, 217, 87, 0.15)',
-  accentLavender: 'rgba(167, 139, 250, 0.15)'
 };
 
 interface AIHubScreenProps {
@@ -41,13 +32,12 @@ interface AIHubScreenProps {
 }
 
 export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHubScreenProps) {
-  const { addMeal, meals, dynamicTargets } = useUser();
+  const { meals, updateWater } = useUser();
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [lastLogged, setLastLogged] = useState<any>(null);
   const [greeting, setGreeting] = useState("Good evening");
   const [isRecording, setIsRecording] = useState(false);
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -82,74 +72,74 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
     if (!input.trim() || isProcessing) return;
 
     setIsProcessing(true);
+    setAiResponse(null);
     try {
-      const items = await analyzeMeal(input);
-      if (items && Array.isArray(items)) {
-        items.forEach(item => {
-          const mealData = {
-            name: item.name || "Unknown item",
-            calories: item.calories || 0,
-            protein: item.protein || 0,
-            carbs: item.carbs || 0,
-            fat: item.fat || 0,
-            fiber: item.fiber || 0,
-            type: 'Lunch' as any,
-            emoji: '🐰'
-          };
-          addMeal(mealData);
-          setLastLogged({ ...mealData, id: 'temp', time: 'Just now' }); // Keep for UI feedback
-        });
-        
-        setShowSuccess(true);
-        setInput('');
-        setTimeout(() => setShowSuccess(false), 5000);
-      }
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{
+            role: "system",
+            content: `You are Bunny, a highly professional yet incredibly sarcastic gym trainer. 
+            Speak in Hinglish (Hindi + English). 
+            Use lots of emojis like 💪, 🔥, 🏋️. 
+            
+            CORE REQUIREMENT: You must be SCIENTIFICALLY ACCURATE. 
+            - If a user mentions food (e.g., 10 eggs, 500g chicken), calculate the macros EXACTLY (e.g., 1 egg ≈ 6g protein, 10 eggs = 60g protein).
+            - Do not answer "in the air". Use standard nutritional data for your calculations.
+            - Provide a quick breakdown of calories, protein, carbs, and fat when food is mentioned.
+            
+            PERSONA: Be helpful but sarcastic. Make fun of the user if they are eating junk or slacking, but always give them the real numbers they need to hear.
+            Keep responses concise and punchy.`
+          }, {
+            role: "user",
+            content: input
+          }],
+          temperature: 0.7
+        })
+      });
+      const data = await response.json();
+      const content = data.choices[0].message.content;
+      setAiResponse(content);
     } catch (error) {
-      console.error('AI Processing Error:', error);
+      console.error('AI Hub Error:', error);
+      setAiResponse("Bhai, server down hai lagta hai. Thoda wait karlo! 😤");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const currentMacros = meals.reduce((acc, meal) => ({
-    calories: acc.calories + meal.calories,
-    protein: acc.protein + meal.protein,
-    carbs: acc.carbs + meal.carbs,
-    fat: acc.fat + meal.fat
-  }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-
   return (
-    <div className="h-full relative overflow-hidden font-jakarta" style={{ backgroundColor: COLORS.background }}>
-      {/* Luminous Aura Orbs */}
-      <motion.div 
-        animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15], x: [0, 40, 0] }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-[-10%] left-[-20%] w-[100%] h-[70%] rounded-full pointer-events-none blur-[120px]" 
-        style={{ background: `radial-gradient(circle, ${COLORS.mint}, transparent)` }} 
+    <div className="h-full relative overflow-hidden font-jakarta">
+      {/* AI Hub Sanctuary Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
+        style={{ backgroundImage: "url('/bg.png')" }}
       />
-      <motion.div 
-        animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1], x: [0, -50, 0] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-[-10%] right-[-20%] w-[100%] h-[70%] rounded-full pointer-events-none blur-[150px]" 
-        style={{ background: `radial-gradient(circle, ${COLORS.lavender}, transparent)` }} 
-      />
+      
+      {/* Soft Overlay */}
+      <div className="absolute inset-0 z-10 bg-white/10 backdrop-blur-[2px]" />
 
-      <div className="relative z-10 p-6 space-y-8 h-full overflow-y-auto pb-32">
-        {/* Header - Redesigned with requested text */}
+      <div className="relative z-20 p-6 space-y-8 h-full overflow-y-auto pb-32">
+        {/* Header */}
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Carrot size={20} className="text-[#FFA024]" fill="#FFA024" />
-            <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">{greeting} Bunny!</h1>
+            <h1 className="text-xl font-extrabold text-white tracking-tight">{greeting} Bunny!</h1>
           </div>
           <motion.div 
             whileHover={{ rotate: 180 }}
-            className="p-3 rounded-2xl border border-black/5 bg-white/40 backdrop-blur-xl shadow-sm"
+            className="p-3 rounded-2xl border border-white/10 bg-white/10 backdrop-blur-xl shadow-sm"
           >
-            <Orbit size={24} className="text-gray-400" />
+            <Orbit size={24} className="text-white/60" />
           </motion.div>
         </header>
 
-        {/* Hero: High Fidelity Input with requested text */}
+        {/* Hero Section */}
         <div className="space-y-8">
           <div className="text-center space-y-6">
             <motion.div 
@@ -158,171 +148,182 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
               className="inline-block"
             >
               <div className="w-28 h-28 mx-auto bg-white rounded-[2.5rem] flex items-center justify-center shadow-xl border border-white/80 relative overflow-hidden group">
-                 <div className="absolute inset-0 bg-[#7ED957]/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                  <img src="/logo.png" alt="Bunny" className="w-full h-full object-contain relative z-10" />
               </div>
             </motion.div>
             
             <div className="space-y-2">
-              <h2 className="text-4xl font-black text-gray-900 tracking-tight leading-none">
+              <h2 className="text-4xl font-black text-white tracking-tight leading-none">
                 What can I <br/><span style={{ color: COLORS.mint }}>record for you?</span>
               </h2>
-              <p className="text-sm font-bold text-gray-400">Instantly log food or activities using natural language.</p>
+              <p className="text-sm font-bold text-white/60">Instantly log food or activities using natural language.</p>
             </div>
           </div>
 
+          {/* Ask Bunny Input Card */}
           <div className="relative group">
+            {/* Ambient Aura Glow */}
             <motion.div 
-              animate={{ opacity: [0.2, 0.3, 0.2] }}
+              animate={{ opacity: [0.1, 0.2, 0.1] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -inset-1 rounded-[2.5rem] blur-2xl group-focus-within:opacity-100 transition-opacity"
+              className="absolute -inset-1 rounded-[2.5rem] blur-2xl group-focus-within:opacity-40 transition-opacity"
               style={{ background: `linear-gradient(45deg, ${COLORS.mint}, ${COLORS.lavender})` }}
             />
             
-            <form onSubmit={handleAISubmit} className="relative bg-white/80 border border-white/80 rounded-[2.5rem] p-8 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.03)] focus-within:shadow-[0_25px_60px_rgba(0,0,0,0.06)] transition-all">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="I'm eating an avocado bagel and a small latte..."
-                className="w-full bg-transparent text-gray-900 placeholder-gray-300 resize-none h-28 focus:outline-none text-xl font-bold leading-relaxed"
-              />
+            <div className="relative bg-[#f7fff9] rounded-[2.5rem] p-8 border border-white/80 shadow-[0_20px_40px_rgba(0,0,0,0.02)] overflow-hidden">
+              <div className="absolute top-0 right-0 p-6 opacity-[0.03]">
+                <Sparkles className="w-24 h-24 text-primary" />
+              </div>
 
-              <div className="mt-6 flex items-center justify-between">
-                <div className="flex gap-4">
-                  <button 
-                    type="button" 
-                    onClick={startSpeechRecognition}
-                    className={`p-3 rounded-2xl transition-all shadow-sm border border-gray-100 ${isRecording ? 'bg-red-50 text-red-500 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-gray-50 hover:bg-white text-gray-300 hover:text-gray-900'}`}
+              <form onSubmit={handleAISubmit} className="relative z-10 space-y-6">
+                <div className="relative">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="I'm eating an avocado bagel and a small latte..."
+                    className="w-full bg-white/40 border border-white/80 rounded-[2rem] px-8 py-6 text-xl font-bold text-[#3a4746] placeholder:text-[#b9c3c1] focus:ring-4 focus:ring-primary/5 transition-all resize-none min-h-[160px] shadow-inner outline-none leading-relaxed"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between gap-4">
+                  <button
+                    type="button"
+                    onClick={isRecording ? () => {} : startSpeechRecognition}
+                    className={`p-4 rounded-2xl border transition-all active:scale-90 ${
+                      isRecording 
+                        ? 'bg-red-500 border-red-400 text-white animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.3)]' 
+                        : 'bg-white border-white/60 text-[#b9c3c1] hover:text-[#3a4746] shadow-sm'
+                    }`}
                   >
                     <Mic size={22} />
                   </button>
-                  <button 
-                    type="button" 
-                    onClick={onNavigateToScan}
-                    className="p-3 rounded-2xl bg-gray-50 hover:bg-white text-gray-300 hover:text-gray-900 transition-all shadow-sm border border-gray-100"
+
+                  <button
+                    type="submit"
+                    disabled={isProcessing || !input.trim()}
+                    className="flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-white active:scale-95 transition-all shadow-[0_15px_35px_rgba(126,217,87,0.3)] disabled:opacity-50"
+                    style={{ background: `linear-gradient(135deg, ${COLORS.mint}, #B5FF9C)` }}
                   >
-                    <Camera size={22} />
+                    {isProcessing ? <Loader2 className="animate-spin" size={20} /> : <Brain size={22} />}
+                    <span className="text-[12px] uppercase tracking-[0.2em]">{isProcessing ? 'Consulting' : 'Ask Bunny'}</span>
                   </button>
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={isProcessing || !input.trim()}
-                  className="flex items-center gap-2 px-6 py-3.5 rounded-2xl font-black text-white active:scale-95 transition-all shadow-[0_10px_30px_rgba(126,217,87,0.3)] disabled:opacity-50"
-                  style={{ background: `linear-gradient(135deg, ${COLORS.mint}, #B5FF9C)` }}
-                >
-                  {isProcessing ? <Activity className="animate-spin" size={18} /> : <ArrowRight size={20} />}
-                  <span className="text-[11px] uppercase tracking-[0.15em]">{isProcessing ? 'Analyzing' : 'Log Everything'}</span>
-                </button>
               </div>
             </form>
           </div>
         </div>
 
-        {/* Feature Cards with requested text */}
+          <AnimatePresence>
+            {aiResponse && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-[#f7fff9] border border-white/80 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group"
+              >
+                <div className="absolute top-0 right-0 p-6 opacity-5">
+                  <Brain className="w-24 h-24 text-[#7ED957]" />
+                </div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-2xl bg-[#7ED957] flex items-center justify-center text-white shadow-sm">
+                      <Sparkles size={18} fill="currentColor" />
+                    </div>
+                    <span className="text-[11px] font-black uppercase text-[#7ED957] tracking-[0.3em]">Trainer Bunny</span>
+                    
+                    <button 
+                      onClick={() => setAiResponse(null)}
+                      className="ml-auto p-2 bg-white/50 text-[#3a4746]/20 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-95"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                  <p className="text-[#3a4746] font-bold text-lg leading-relaxed whitespace-pre-wrap">
+                    {aiResponse}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Feature Cards (Solid Restoration) */}
         <div className="space-y-6">
           <motion.div 
             whileHover={{ y: -5 }}
-            className="p-8 rounded-[2.5rem] border border-gray-100 bg-white/60 backdrop-blur-xl relative overflow-hidden group shadow-sm"
+            className="p-8 rounded-[2.5rem] border border-white/80 bg-[#f7fff9] relative overflow-hidden group shadow-sm"
           >
-            <div className="absolute top-0 left-0 w-1.5 h-full" style={{ background: `linear-gradient(to bottom, ${COLORS.mint}, ${COLORS.lavender})` }}></div>
+            <div className="absolute top-0 left-0 w-1.5 h-full" style={{ background: `linear-gradient(to bottom, #7ED957, #A78BFA)` }}></div>
             <div className="flex items-start gap-5">
-              <div className="p-3 rounded-2xl" style={{ backgroundColor: COLORS.accentMint, color: COLORS.mint }}>
+              <div className="p-3 rounded-2xl" style={{ backgroundColor: 'rgba(126, 217, 87, 0.1)', color: '#7ED957' }}>
                 <Lightbulb size={28} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: COLORS.mint }}>Growth Mindset</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#7ED957]">Growth Mindset</span>
                 </div>
-                <h4 className="text-xl font-extrabold text-gray-900 tracking-tight">Stay sharp today.</h4>
-                <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                <h4 className="text-xl font-extrabold text-[#3a4746] tracking-tight">Stay sharp today.</h4>
+                <p className="text-sm text-[#89979b] leading-relaxed font-medium">
                   Boost metabolism by 15% with a quick morning walk or cold water.
                 </p>
               </div>
-              <div className="ml-auto p-2 rounded-full bg-gray-50 text-gray-300">
+              <div className="ml-auto p-2 rounded-full bg-white/50 text-[#3a4746]/20">
                 <ChevronRight size={20} />
               </div>
             </div>
           </motion.div>
 
           <div className="grid grid-cols-2 gap-5">
-            <motion.div whileHover={{ y: -5 }} className="bg-white/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4">
+            <motion.div whileHover={{ y: -5 }} className="bg-[#f7fff9] p-8 rounded-[2.5rem] border border-white/80 shadow-sm space-y-4">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-red-500 bg-red-50">
                 <Activity size={24} />
               </div>
               <div>
-                <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Biometric Sync</h5>
-                <p className="text-3xl font-black text-gray-900">98%</p>
+                <h5 className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-widest mb-1">Biometric Sync</h5>
+                <p className="text-3xl font-black text-[#3a4746]">98%</p>
               </div>
             </motion.div>
 
-            <motion.div whileHover={{ y: -5 }} className="bg-white/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4">
+            <motion.div whileHover={{ y: -5 }} className="bg-[#f7fff9] p-8 rounded-[2.5rem] border border-white/80 shadow-sm space-y-4">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-blue-500 bg-blue-50">
                 <Utensils size={24} />
               </div>
               <div>
-                <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nutritional Precision</h5>
-                <p className="text-3xl font-black text-gray-900">Stable</p>
+                <h5 className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-widest mb-1">Nutritional Precision</h5>
+                <p className="text-3xl font-black text-[#3a4746]">Stable</p>
               </div>
             </motion.div>
           </div>
         </div>
 
         {/* Recent Telemetry - History Card */}
-        <div className="p-8 rounded-[2.5rem] border border-gray-100 bg-white/60 backdrop-blur-2xl group overflow-hidden shadow-sm space-y-4">
+        <div className="p-8 rounded-[2.5rem] border border-white/80 bg-[#f7fff9] shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Recent Telemetry</h5>
-            <History size={16} className="text-gray-300" />
+            <h5 className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-[0.3em]">Recent Telemetry</h5>
+            <History size={16} className="text-[#b9c3c1]" />
           </div>
           
           <div className="space-y-4">
             {meals.length > 0 ? (
-              meals.slice(0, 3).map((meal, i) => (
-                <div key={meal.id} className="flex items-center gap-4 group/item">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl border border-gray-50 shadow-inner">
+              meals.slice(0, 3).map((meal) => (
+                <div key={meal.id} className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[#f8fafb] flex items-center justify-center text-2xl border border-[#f1f4f5] shadow-sm">
                     {meal.emoji || '🥕'}
                   </div>
                   <div className="flex-grow">
-                    <h6 className="text-sm font-bold text-gray-900">{meal.name}</h6>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{meal.time}</p>
+                    <h6 className="text-sm font-bold text-[#3a4746]">{meal.name}</h6>
+                    <p className="text-[10px] font-bold text-[#b9c3c1] uppercase tracking-wider">{meal.time}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-gray-900">+{meal.calories}</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase">kcal</p>
+                    <p className="text-sm font-black text-[#3a4746]">+{meal.calories}</p>
+                    <p className="text-[10px] font-bold text-[#b9c3c1] uppercase">kcal</p>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-sm font-medium text-gray-400 py-4 text-center">No telemetry recorded yet.</p>
+              <p className="text-sm font-medium text-[#b9c3c1] py-4 text-center italic">No telemetry recorded yet.</p>
             )}
           </div>
         </div>
-
-        {/* Success Confirmation Overlay */}
-        <AnimatePresence>
-          {showSuccess && lastLogged && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed bottom-32 left-6 right-6 z-50 p-6 rounded-[2.5rem] border border-gray-100 bg-white/95 backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.1)]"
-            >
-              <div className="flex items-center gap-5">
-                <div className="flex-shrink-0 w-16 h-16 rounded-3xl flex items-center justify-center text-4xl bg-gray-50 border border-gray-100">
-                  {lastLogged.emoji || '🥕'}
-                </div>
-                <div className="flex-grow">
-                  <p className="text-[10px] tracking-[0.4em] font-black text-gray-300 uppercase mb-1">Telemetry Logged</p>
-                  <h4 className="text-gray-900 font-extrabold text-xl">{lastLogged.name}</h4>
-                  <p className="text-sm font-bold" style={{ color: COLORS.mint }}>Verified Entry</p>
-                </div>
-                <div className="p-3 rounded-full bg-emerald-50" style={{ color: COLORS.mint }}>
-                  <ShieldCheck size={32} />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </div>
   );

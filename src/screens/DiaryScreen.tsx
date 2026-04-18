@@ -10,6 +10,7 @@ import {
 import PullToRefresh from '../components/PullToRefresh';
 import { useUser } from '../context/UserContext';
 import AIAssistant from '../components/AIAssistant';
+import CuteCalendarModal from '../components/CuteCalendarModal';
 
 interface DiaryScreenProps {
   onOpenPremium?: () => void;
@@ -40,83 +41,9 @@ const FavoriteButton = ({ isFavorite, onClick }: { isFavorite: boolean; onClick:
   );
 };
 
-const CuteCalendarModal = ({ isOpen, onClose, currentDate, onSelect, daysWithLogs }: { isOpen: boolean, onClose: () => void, currentDate: Date, onSelect: (d: Date) => void, daysWithLogs: Set<string> }) => {
-  const [viewDate, setViewDate] = useState(new Date(currentDate));
-  
-  const days = useMemo(() => {
-    const d = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
-    const start = d.getDay();
-    const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
-    return { start, daysInMonth };
-  }, [viewDate]);
-
-  const changeMonth = (offset: number) => {
-    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + offset, 1));
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/20 z-[200] backdrop-blur-sm" />
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -20 }} className="fixed top-[15%] left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-white rounded-[2.5rem] p-8 z-[201] shadow-2xl border border-white">
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-3">
-                <button onClick={() => changeMonth(-1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><ChevronLeft size={16} /></button>
-                <h3 className="font-black text-[#3a4746] text-sm tracking-tight">{viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
-                <button onClick={() => changeMonth(1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><ChevronRight size={16} /></button>
-              </div>
-              <button onClick={onClose} className="w-8 h-8 flex items-center justify-center bg-gray-50 rounded-full"><X className="w-4 h-4 text-gray-400" /></button>
-            </div>
-            
-            <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-[#b9c3c1] mb-4 uppercase tracking-widest">
-              {['S','M','T','W','T','F','S'].map(d => <div key={d}>{d}</div>)}
-            </div>
-            
-            <div className="grid grid-cols-7 gap-1">
-              {Array.from({ length: days.start }).map((_, i) => <div key={`empty-${i}`} />)}
-              {Array.from({ length: days.daysInMonth }).map((_, i) => {
-                const d = i + 1;
-                const dateObj = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
-                const dateStr = dateObj.toISOString().split('T')[0];
-                const isSelected = dateObj.toDateString() === currentDate.toDateString();
-                const hasLogs = daysWithLogs.has(dateStr);
-                const isToday = dateObj.toDateString() === new Date().toDateString();
-
-                return (
-                  <button 
-                    key={d} 
-                    onClick={() => { onSelect(dateObj); onClose(); }} 
-                    className={`aspect-square rounded-2xl flex flex-col items-center justify-center text-xs font-black relative transition-all active:scale-90 ${isSelected ? 'bg-[#8de15c] text-white shadow-lg shadow-[#8de15c]/30' : 'hover:bg-[#f8fafb] text-[#3a4746]'} ${isToday && !isSelected ? 'text-[#8de15c]' : ''}`}
-                  >
-                    <span>{d}</span>
-                    {hasLogs && (
-                      <div className={`mt-0.5 ${isSelected ? 'text-white' : 'text-[#ff9d2d]'}`}>
-                         <span className="text-[10px]">🥕</span>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-            
-            <div className="mt-8 pt-6 border-t border-gray-100 flex justify-center">
-              <button 
-                onClick={() => { onSelect(new Date()); onClose(); }}
-                className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8de15c] bg-[#8de15c]/5 px-6 py-2 rounded-full border border-[#8de15c]/10"
-              >
-                Snap back to today
-              </button>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-};
 
 export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan }: DiaryScreenProps) {
-  const { biometrics, meals, exercises, deleteMeal, addExercise, updateBiometrics, dynamicTargets, addWeightLog, weightLogs, goal: userGoal } = useUser();
+  const { biometrics, meals, exercises, deleteMeal, addExercise, updateBiometrics, dynamicTargets, addWeightLog, weightLogs, goal: userGoal, waterLogs, updateWater } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
   
@@ -154,6 +81,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
   const totalExerciseCals = filteredExercises.reduce((acc, ex) => acc + (ex.calories || 0), 0);
   const goalCals = dynamicTargets.cals; 
   const remainingCals = goalCals - totalFoodCals + totalExerciseCals;
+  const currentWater = waterLogs.find(l => l.date === selectedDateStr)?.glasses || 0;
 
   const handleWeightSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -265,32 +193,38 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
   };
 
   return (
-    <>
-      <header className="fixed top-0 left-0 w-full z-40 bg-transparent pt-8 pb-3 px-4">
-        <div className="flex items-center justify-center gap-6 relative max-w-2xl mx-auto">
-          <button onClick={() => changeDate(-1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 text-[#3a4746] transition-colors"><ChevronLeft className="w-5 h-5" /></button>
-          
-          <motion.div 
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowCalendar(true)}
-            className="cursor-pointer group relative px-4 py-1.5 rounded-2xl hover:bg-white/40 transition-all flex flex-col items-center"
-          >
-            <h1 className="text-lg font-black text-[#3a4746] tracking-tight">{formatDisplayDate(currentDate)}</h1>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-               <div className="w-1 h-1 rounded-full bg-[#8de15c]" />
-               <span className="text-[7px] font-black uppercase tracking-widest text-[#8de15c]">View Calendar</span>
-            </div>
-          </motion.div>
+    <div className="relative h-full overflow-hidden">
+      {/* Diary Sanctuary Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
+        style={{ backgroundImage: "url('/10.png')" }}
+      />
 
-          <button onClick={() => changeDate(1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 text-[#3a4746] transition-colors"><ChevronRight className="w-5 h-5" /></button>
-        </div>
-      </header>
-
-      <div className="absolute top-[70px] bottom-0 left-0 right-0 overflow-y-auto">
+      <div className="absolute inset-0 z-10">
         <PullToRefresh onRefresh={async () => await new Promise(r => setTimeout(r, 1500))}>
-          <main className="px-4 max-w-2xl mx-auto space-y-4 pt-4 pb-32">
+          <header className="w-full mt-8 mb-3 px-4">
+            <div className="flex items-center justify-center gap-6 relative max-w-2xl mx-auto">
+              <button onClick={() => changeDate(-1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 text-[#3a4746] transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+              
+              <motion.div 
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowCalendar(true)}
+                className="cursor-pointer group relative px-4 py-1.5 rounded-2xl hover:bg-white/40 transition-all flex flex-col items-center"
+              >
+                <h1 className="text-lg font-black text-[#3a4746] tracking-tight">{formatDisplayDate(currentDate)}</h1>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <div className="w-1 h-1 rounded-full bg-[#8de15c]" />
+                   <span className="text-[7px] font-black uppercase tracking-widest text-[#8de15c]">View Calendar</span>
+                </div>
+              </motion.div>
+
+              <button onClick={() => changeDate(1)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 text-[#3a4746] transition-colors"><ChevronRight className="w-5 h-5" /></button>
+            </div>
+          </header>
+
+          <main className="px-4 max-w-2xl mx-auto space-y-4 pb-32">
             {/* Calories Summary Profile Card */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2.5rem] p-6 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] border border-white/80 overflow-hidden relative">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[#f7fff9] rounded-[2.5rem] p-6 shadow-[0_15px_40px_-15px_rgba(141,225,92,0.1)] border border-white/80 overflow-hidden relative">
               <div className="flex justify-between items-start mb-6 px-1">
                 <div>
                   <h2 className="text-2xl font-black text-[#3a4746] tracking-tight">Calories</h2>
@@ -357,7 +291,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
             </motion.div>
 
             {/* Daily Report Card */}
-            <div onClick={() => setIsAssistantOpen(true)} className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80 cursor-pointer active:scale-[0.99] transition-all">
+            <div onClick={() => setIsAssistantOpen(true)} className="bg-[#f7fff9] rounded-[2rem] p-6 shadow-sm border border-white/80 cursor-pointer active:scale-[0.99] transition-all">
               <div className="flex justify-between items-center mb-6 px-1"><h3 className="text-xl font-black text-[#3a4746] tracking-tight">Daily Report</h3><div className="bg-[#8de15c]/10 text-[#8de15c] px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest">Ask Bunny</div></div>
               <div className="space-y-4">
                 {[{ l: 'Nutrition', v: 'Excellent', i: Utensils, c: 'text-[#8de15c]', bg: 'bg-[#8de15c]/5' }, { l: 'Activity', v: 'On track', i: Activity, c: 'text-[#309af0]', bg: 'bg-[#309af0]/5' }, { l: 'Mood', v: 'Energetic', i: Sparkles, c: 'text-[#ffa024]', bg: 'bg-[#ffa024]/5' }].map((it, i) => (
@@ -373,7 +307,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
               { id: 'Dinner', icon: Soup, col: 'text-purple-500', bg: 'bg-purple-50' },
               { id: 'Snacks', icon: Apple, col: 'text-red-500', bg: 'bg-red-50' }
             ].map((cat) => (
-              <div key={cat.id} className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80 transition-all">
+              <div key={cat.id} className="bg-[#f7fff9] rounded-[2rem] p-6 shadow-sm border border-white/80 transition-all">
                 <div className="flex justify-between items-center px-1">
                   <div className="flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-xl ${cat.bg} ${cat.col} flex items-center justify-center shadow-xs border border-white`}><cat.icon className="w-6 h-6" /></div>
@@ -388,7 +322,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
               </div>
             ))}
 
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80">
+            <div className="bg-[#f7fff9] rounded-[2rem] p-6 shadow-sm border border-white/80">
               <div className="flex justify-between items-center mb-6 px-1 text-[#3a4746]">
                 <div className="flex items-center gap-3"><div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shadow-xs border border-white"><Flame className="w-6 h-6" /></div><h3 className="text-xl font-black tracking-tight">Exercises</h3></div>
                 <button onClick={() => setShowExerciseModal(true)} className="w-9 h-9 rounded-full border border-[#8de15c]/20 text-[#8de15c] flex items-center justify-center hover:bg-[#8de15c]/5 transition-colors"><Plus size={22} /></button>
@@ -407,7 +341,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
               </div>
             </div>
 
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80 flex justify-between items-center">
+            <div className="bg-[#f7fff9] rounded-[2rem] p-6 shadow-sm border border-white/80 flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 bg-[#ffe9c9] rounded-xl flex items-center justify-center shadow-xs border border-white"><Scale className="w-7 h-7 text-[#ffa024]" /></div>
                 <div><h4 className="font-black text-[#3a4746] text-lg tracking-tight">Weigh-in</h4><p className="text-[#b9c3c1] text-xs font-black uppercase tracking-wider">{weightLogs[0]?.weight || biometrics.weight} <span className="text-[9px]">KG</span></p></div>
@@ -415,19 +349,42 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
               <button onClick={() => setShowWeightModal(true)} className="px-6 py-2.5 bg-[#f8fafb] border border-[#f1f4f5] rounded-xl text-[#3a4746] font-black text-[10px] hover:bg-[#eff3f4] transition-all active:scale-95 shadow-xs">Record</button>
             </div>
 
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80 transition-all">
+            <div className="bg-[#f7fff9] rounded-[2rem] p-6 shadow-sm border border-white/80 transition-all">
               <div className="flex justify-between items-center mb-6 px-1">
                 <div>
                   <h3 className="text-xl font-black text-[#3a4746] tracking-tight">Water</h3>
                   <div className="bg-[#e9f4ff] text-[#309af0] text-[8px] font-black px-3 py-1 rounded-md uppercase tracking-widest mt-1 border border-blue-50">Goal: 2000ml</div>
                 </div>
-                <div className="bg-[#f8fafb] text-[#309af0] px-4 py-2 rounded-xl font-black text-base border border-white shadow-xs">60% <span className="text-[9px] text-gray-300 ml-1">Daily</span></div>
+                <div className="bg-[#f8fafb] text-[#309af0] px-4 py-2 rounded-xl font-black text-base border border-white shadow-xs">{Math.min(Math.round((currentWater/8)*100), 100)}% <span className="text-[9px] text-gray-300 ml-1">Daily</span></div>
               </div>
               <div className="flex justify-between items-center gap-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <button key={i} className="relative w-7 h-11 flex flex-col items-center">
-                    <div className="w-full h-full rounded-b-xl border-2 border-[#f1f4f5] bg-white transition-all overflow-hidden relative shadow-xs">
-                      <motion.div initial={{ height: i < 3 ? '75%' : '0%' }} className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#309af0] to-[#60b3f5]" />
+                  <button 
+                    key={i} 
+                    onClick={() => updateWater(currentWater === i + 1 ? i : i + 1, selectedDateStr)}
+                    className="relative w-8 h-12 flex flex-col items-center group active:scale-95 transition-transform"
+                  >
+                    {/* Premium Glass Vessel */}
+                    <div className="w-full h-full relative">
+                      {/* Glass Body */}
+                      <div className="absolute inset-0 bg-white/40 backdrop-blur-sm border-2 border-white/60 rounded-b-xl rounded-t-[2px] shadow-sm overflow-hidden">
+                        {/* Liquid Content */}
+                        <motion.div 
+                          initial={false}
+                          animate={{ height: currentWater > i ? '70%' : '0%' }}
+                          className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#309af0] to-[#60b3f5] opacity-80"
+                        >
+                           {/* Shine/Reflection on Water */}
+                           <div className="absolute top-0 left-0 w-full h-1 bg-white/20 blur-[1px]" />
+                        </motion.div>
+                        
+                        {/* Glass Reflection Shine */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none" />
+                        <div className="absolute top-1 left-1 w-1 h-[60%] bg-white/20 rounded-full blur-[0.5px] pointer-events-none" />
+                      </div>
+                      
+                      {/* Glass Lip */}
+                      <div className="absolute -top-[1px] left-0 right-0 h-[2px] bg-white/80 rounded-full shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
                     </div>
                   </button>
                 ))}
@@ -441,7 +398,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
         isOpen={showCalendar} 
         onClose={() => setShowCalendar(false)} 
         currentDate={currentDate} 
-        onSelect={(d) => setCurrentDate(d)}
+        onSelectDate={(d) => setCurrentDate(d)}
         daysWithLogs={daysWithLogs}
       />
 
@@ -483,6 +440,6 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
       </AnimatePresence>
 
       <AIAssistant isOpen={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} />
-    </>
+    </div>
   );
 }

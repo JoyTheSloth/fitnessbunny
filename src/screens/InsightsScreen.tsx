@@ -1,11 +1,15 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { Egg, Sparkles, Flame, Apple, ChevronLeft, ChevronRight, Utensils, Leaf } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useUser } from '../context/UserContext';
+import CuteCalendarModal from '../components/CuteCalendarModal';
 
 export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () => void }) {
   const { meals, dynamicTargets, weightLogs } = useUser();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
+  
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const todayIndex = new Date().getDay(); // 0-6
 
@@ -27,12 +31,28 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
   const targetFat = dynamicTargets.fat;
 
   return (
-    <div className="h-full overflow-y-auto">
-      <header className="fixed top-0 left-0 w-full z-40 bg-transparent pt-8 pb-3 px-4 shadow-none">
-        <div className="flex items-center justify-center gap-4 relative max-w-2xl mx-auto">
-          <ChevronLeft className="w-5 h-5 text-[#3a4746]" />
-          <h1 className="text-xl font-black text-[#3a4746] tracking-tight">Insights</h1>
-          <ChevronRight className="w-5 h-5 text-[#b9c3c1]" />
+    <div className="h-full relative overflow-hidden">
+      {/* Insights Sanctuary Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
+        style={{ backgroundImage: "url('/10.png')" }}
+      />
+      
+      {/* Soft Overlay */}
+      <div className="absolute inset-0 z-10 bg-black/5 backdrop-blur-[1px]" />
+
+      <div className="relative z-20 h-full overflow-y-auto pt-8 pb-32">
+      <header className="w-full z-40 bg-transparent mb-3 px-4 shadow-none">
+        <div className="flex items-center justify-center gap-6 relative max-w-2xl mx-auto">
+          <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 text-[#3a4746] transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+          <motion.div 
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowCalendar(true)}
+            className="cursor-pointer group relative px-4 py-1.5 rounded-2xl hover:bg-white/40 transition-all flex flex-col items-center"
+          >
+            <h1 className="text-lg font-black text-[#3a4746] tracking-tight">Insights</h1>
+          </motion.div>
+          <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/50 text-[#b9c3c1] transition-colors"><ChevronRight className="w-5 h-5" /></button>
           
           <button onClick={onOpenPremium} className="absolute right-0 top-1/2 -translate-y-1/2 bg-gradient-to-r from-[#ffa024] to-[#f55938] text-white text-[10px] uppercase font-extrabold px-3 py-1.5 rounded-full shadow-[0_4px_10px_rgba(255,160,36,0.3)] hover:-translate-y-[calc(50%+1px)] transition-transform flex items-center gap-1 active:scale-95">
             <Sparkles className="w-3 h-3" fill="currentColor" /> Premium
@@ -40,10 +60,10 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
         </div>
       </header>
 
-      <main className="pt-20 px-4 max-w-2xl mx-auto space-y-8 pb-32">
-        <section className="space-y-1 px-2">
-          <h2 className="text-4xl font-extrabold text-[#3a4746] tracking-tighter leading-tight drop-shadow-sm">Your Weekly <br/><span className="text-[#8de15c]">Vitality Report</span></h2>
-          <p className="text-sm font-bold text-[#89979b] flex items-center gap-1.5 pt-1">You're doing great this week! <Sparkles className="w-4 h-4 text-[#ff9656]" fill="currentColor"/></p>
+      <main className="px-4 max-w-2xl mx-auto space-y-8">
+        <section className="space-y-1 px-2 pt-10">
+          <h2 className="text-4xl font-extrabold text-[#3a4746] tracking-tighter leading-tight drop-shadow-sm">Your Weekly <br/><span className="text-white">Vitality Report</span></h2>
+          <p className="text-sm font-bold text-white/70 flex items-center gap-1.5 pt-1">You're doing great this week! <Sparkles className="w-4 h-4 text-[#ff9656]" fill="currentColor"/></p>
         </section>
         <section className="space-y-6">
           {/* Calories Card */}
@@ -409,6 +429,14 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
           </div>
         </section>
       </main>
+
+      <CuteCalendarModal 
+        isOpen={showCalendar} 
+        onClose={() => setShowCalendar(false)} 
+        currentDate={currentDate} 
+        onSelectDate={(d) => setCurrentDate(d)}
+      />
     </div>
-  );
+  </div>
+);
 }
