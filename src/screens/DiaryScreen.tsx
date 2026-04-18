@@ -290,64 +290,64 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
         <PullToRefresh onRefresh={async () => await new Promise(r => setTimeout(r, 1500))}>
           <main className="px-4 max-w-2xl mx-auto space-y-4 pt-4 pb-32">
             {/* Calories Summary Profile Card */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[3.5rem] p-10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.03)] border border-white/80 overflow-hidden relative">
-              <div className="flex justify-between items-start mb-10">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2.5rem] p-6 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] border border-white/80 overflow-hidden relative">
+              <div className="flex justify-between items-start mb-6 px-1">
                 <div>
-                  <h2 className="text-3xl font-black text-[#3a4746] tracking-tight">Calories</h2>
-                  <p className="text-[11px] font-black text-[#b9c3c1] uppercase tracking-[0.2em] mt-1">Summary Profile</p>
+                  <h2 className="text-2xl font-black text-[#3a4746] tracking-tight">Calories</h2>
+                  <p className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-[0.2em] mt-0.5">Summary Profile</p>
                 </div>
-                <motion.div whileTap={{ scale: 0.95 }} onClick={onOpenPremium} className="bg-[#fef2e8] px-5 py-2.5 rounded-2xl flex items-center gap-3 cursor-pointer border border-[#fce4d1]/30">
-                  <span className="text-[#f1904a] text-[11px] font-black uppercase tracking-wider">{userGoal.split(' ')[0]} {userGoal.split(' ')[1] || 'Weight'}</span>
-                  <ChevronRightSm className="w-4 h-4 text-[#f1904a]" />
+                <motion.div whileTap={{ scale: 0.95 }} onClick={onOpenPremium} className="bg-[#fef2e8] px-3 py-1.5 rounded-xl flex items-center gap-2 cursor-pointer border border-[#fce4d1]/30">
+                  <span className="text-[#f1904a] text-[10px] font-black uppercase">{userGoal}</span>
+                  <ChevronRightSm className="w-3 h-3 text-[#f1904a]" />
                 </motion.div>
               </div>
 
-               <div className="grid grid-cols-2 gap-10 items-center mb-12">
-                 <div className="relative w-40 h-40 flex items-center justify-center">
+               <div className="flex items-center gap-8 mb-8 px-2">
+                 <div className="relative w-36 h-36 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90">
-                      <circle className="text-[#eff3f4] stroke-current" cx="80" cy="80" r="70" strokeWidth="15" fill="none" />
-                      <motion.circle initial={{ strokeDashoffset: 440 }} animate={{ strokeDashoffset: 440 - (440 * Math.min(totalFoodCals / goalCals, 1)) }} className={`${remainingCals < 200 ? 'text-orange-400' : 'text-[#8de15c]'} stroke-current`} cx="80" cy="80" r="70" strokeWidth="15" fill="none" strokeDasharray="440" strokeLinecap="round" />
+                      <circle className="text-[#eff3f4] stroke-current" cx="72" cy="72" r="62" strokeWidth="12" fill="none" />
+                      <motion.circle initial={{ strokeDashoffset: 390 }} animate={{ strokeDashoffset: 390 - (390 * Math.min(totalFoodCals / goalCals, 1)) }} className={`${remainingCals < 200 ? 'text-orange-400' : 'text-[#8de15c]'} stroke-current`} cx="72" cy="72" r="62" strokeWidth="12" fill="none" strokeDasharray="390" strokeLinecap="round" />
                     </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center -mt-1">
-                       <span className="text-4xl font-black text-[#3a4746] leading-none tracking-tighter">{remainingCals}</span>
-                       <span className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-[0.2em] mt-2">Left</span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                       <span className="text-3xl font-black text-[#3a4746] tracking-tighter">{remainingCals}</span>
+                       <span className="text-[9px] font-black text-[#b9c3c1] uppercase tracking-widest -mt-1">Remaining</span>
                     </div>
                  </div>
  
-                 <div className="space-y-5">
+                 <div className="flex-1 space-y-3">
                     {[
                       { label: 'Goal', val: goalCals, i: Trophy, bg: 'bg-[#fff5eb]', c: 'text-[#ffa024]' },
                       { label: 'Food', val: totalFoodCals, i: Utensils, bg: 'bg-[#f0f7ff]', c: 'text-[#309af0]' },
                       { label: 'Exercise', val: totalExerciseCals, i: Flame, bg: 'bg-[#fff1f1]', c: 'text-[#ef4444]' }
                     ].map((s, i) => (
-                      <div key={i} className="flex items-center gap-4">
-                        <div className={`w-14 h-14 rounded-2xl ${s.bg} ${s.c} flex items-center justify-center shadow-sm border border-white`}><s.i className="w-6 h-6" /></div>
+                      <div key={i} className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full ${s.bg} ${s.c} flex items-center justify-center shadow-sm border border-white`}><s.i className="w-5 h-5" /></div>
                         <div>
-                          <p className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-[0.2em] mb-1">{s.label}</p>
-                          <p className="text-2xl font-black text-[#3a4746] leading-none">{s.val}</p>
+                          <p className="text-[8px] font-black text-[#b9c3c1] uppercase tracking-widest">{s.label}</p>
+                          <p className="text-base font-black text-[#3a4746] -mt-0.5">{s.val}</p>
                         </div>
                       </div>
                     ))}
                  </div>
               </div>
 
-              <div className="bg-[#f8fafb]/50 border border-[#f1f4f5] rounded-[3rem] p-8">
-                <div className="grid grid-cols-2 gap-x-12 gap-y-8">
+              <div className="bg-[#f8fafb]/60 border border-[#f1f4f5] rounded-[2rem] p-5">
+                <div className="grid grid-cols-2 gap-x-8 gap-y-5">
                    {[
                      { l: 'Carbs', v: totalCarbs, t: dynamicTargets.carbs, col: 'bg-[#ffa024]', dot: '#ffa024' },
                      { l: 'Protein', v: totalProtein, t: dynamicTargets.protein, col: 'bg-[#309af0]', dot: '#309af0' },
                      { l: 'Fat', v: totalFat, t: dynamicTargets.fat, col: 'bg-[#ff9d2d]', dot: '#ff9d2d' },
                      { l: 'Fiber', v: 2, t: 25, col: 'bg-[#8de15c]', dot: '#8de15c' }
                    ].map((m, i) => (
-                     <div key={i} className="space-y-3">
+                     <div key={i} className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.dot }} />
-                            <span className="text-xs font-black text-[#3a4746] uppercase tracking-[0.15em]">{m.l}</span>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: m.dot }} />
+                            <span className="text-[9px] font-black text-[#3a4746] uppercase">{m.l}</span>
                           </div>
-                          <span className="text-[10px] font-black text-[#3a4746]">{m.v}g <span className="text-[#b9c3c1]">/{m.t}g</span></span>
+                          <span className="text-[8px] font-black text-[#3a4746]">{m.v}g <span className="text-[#b9c3c1]">/{m.t}g</span></span>
                         </div>
-                        <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden border border-white">
+                        <div className="h-1.5 bg-gray-100/50 rounded-full overflow-hidden border border-white">
                           <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min((m.v/m.t)*100, 100)}%` }} className={`h-full ${m.col}`} />
                         </div>
                      </div>
@@ -357,11 +357,11 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
             </motion.div>
 
             {/* Daily Report Card */}
-            <div onClick={() => setIsAssistantOpen(true)} className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-white/80 cursor-pointer active:scale-[0.99] transition-all">
-              <div className="flex justify-between items-center mb-8"><h3 className="text-2xl font-black text-[#3a4746] tracking-tight">Daily Report</h3><div className="bg-[#8de15c]/10 text-[#8de15c] px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest">Ask Bunny</div></div>
-              <div className="space-y-5">
+            <div onClick={() => setIsAssistantOpen(true)} className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80 cursor-pointer active:scale-[0.99] transition-all">
+              <div className="flex justify-between items-center mb-6 px-1"><h3 className="text-xl font-black text-[#3a4746] tracking-tight">Daily Report</h3><div className="bg-[#8de15c]/10 text-[#8de15c] px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest">Ask Bunny</div></div>
+              <div className="space-y-4">
                 {[{ l: 'Nutrition', v: 'Excellent', i: Utensils, c: 'text-[#8de15c]', bg: 'bg-[#8de15c]/5' }, { l: 'Activity', v: 'On track', i: Activity, c: 'text-[#309af0]', bg: 'bg-[#309af0]/5' }, { l: 'Mood', v: 'Energetic', i: Sparkles, c: 'text-[#ffa024]', bg: 'bg-[#ffa024]/5' }].map((it, i) => (
-                  <div key={i} className="flex items-center justify-between"><div className="flex items-center gap-4"><div className={`w-12 h-12 rounded-2xl ${it.bg} flex items-center justify-center ${it.c} border border-white shadow-sm`}><it.i className="w-6 h-6" /></div><span className="font-black text-[#3a4746]">{it.l}</span></div><div className="flex items-center gap-3"><span className="text-[11px] font-black text-[#b9c3c1] uppercase tracking-wider">{it.v}</span><ChevronRightSm className="w-4 h-4 text-gray-200" /></div></div>
+                  <div key={i} className="flex items-center justify-between"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-xl ${it.bg} flex items-center justify-center ${it.c} border border-white shadow-xs`}><it.i className="w-5 h-5" /></div><span className="font-black text-[#3a4746] text-sm">{it.l}</span></div><div className="flex items-center gap-2"><span className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-wider">{it.v}</span><ChevronRightSm className="w-3 h-3 text-gray-200" /></div></div>
                 ))}
               </div>
             </div>
@@ -373,60 +373,60 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
               { id: 'Dinner', icon: Soup, col: 'text-purple-500', bg: 'bg-purple-50' },
               { id: 'Snacks', icon: Apple, col: 'text-red-500', bg: 'bg-red-50' }
             ].map((cat) => (
-              <div key={cat.id} className="bg-white rounded-[3rem] p-8 shadow-sm border border-white/80 transition-all">
+              <div key={cat.id} className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80 transition-all">
                 <div className="flex justify-between items-center px-1">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-2xl ${cat.bg} ${cat.col} flex items-center justify-center shadow-sm border border-white`}><cat.icon className="w-7 h-7" /></div>
-                    <h3 className="text-2xl font-black text-[#3a4746] tracking-tight">{cat.id}</h3>
-                  </div>
                   <div className="flex items-center gap-3">
-                    <motion.button whileTap={{ scale: 0.85 }} onClick={(e) => { e.stopPropagation(); onOpenScan?.(); }} className="relative w-10 h-10 rounded-xl border-2 border-[#8de15c] flex items-center justify-center text-[#8de15c] transition-colors"><Camera size={18} /><div className="absolute -top-2 -right-2 bg-[#ffa024] text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded shadow-sm border border-white">AI</div></motion.button>
-                    <motion.button whileTap={{ scale: 0.85 }} onClick={(e) => { e.stopPropagation(); onNavigateToAdd?.(cat.id); }} className="w-10 h-10 rounded-full border-2 border-[#8de15c] text-[#8de15c] flex items-center justify-center transition-colors"><Plus size={24} /></motion.button>
+                    <div className={`w-12 h-12 rounded-xl ${cat.bg} ${cat.col} flex items-center justify-center shadow-xs border border-white`}><cat.icon className="w-6 h-6" /></div>
+                    <h3 className="text-xl font-black text-[#3a4746] tracking-tight">{cat.id}</h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <motion.button whileTap={{ scale: 0.85 }} onClick={(e) => { e.stopPropagation(); onOpenScan?.(); }} className="relative w-9 h-9 rounded-lg border border-[#8de15c] flex items-center justify-center text-[#8de15c] transition-colors"><Camera size={16} /><div className="absolute -top-1.5 -right-1.5 bg-[#ffa024] text-white text-[7px] font-extrabold px-1 py-0.5 rounded shadow-xs border border-white">AI</div></motion.button>
+                    <motion.button whileTap={{ scale: 0.85 }} onClick={(e) => { e.stopPropagation(); onNavigateToAdd?.(cat.id); }} className="w-9 h-9 rounded-full border border-[#8de15c] text-[#8de15c] flex items-center justify-center transition-colors"><Plus size={20} /></motion.button>
                   </div>
                 </div>
                 {renderCustomMeals(cat.id)}
               </div>
             ))}
 
-            <div className="bg-white rounded-[3rem] p-8 shadow-sm border border-white/80">
-              <div className="flex justify-between items-center mb-8 px-1 text-[#3a4746]">
-                <div className="flex items-center gap-4"><div className="w-14 h-14 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center shadow-sm border border-white"><Flame className="w-7 h-7" /></div><h3 className="text-2xl font-black tracking-tight">Exercises</h3></div>
-                <button onClick={() => setShowExerciseModal(true)} className="w-11 h-11 rounded-full border-2 border-[#8de15c]/20 text-[#8de15c] flex items-center justify-center hover:bg-[#8de15c]/5 transition-colors"><Plus size={26} /></button>
+            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80">
+              <div className="flex justify-between items-center mb-6 px-1 text-[#3a4746]">
+                <div className="flex items-center gap-3"><div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shadow-xs border border-white"><Flame className="w-6 h-6" /></div><h3 className="text-xl font-black tracking-tight">Exercises</h3></div>
+                <button onClick={() => setShowExerciseModal(true)} className="w-9 h-9 rounded-full border border-[#8de15c]/20 text-[#8de15c] flex items-center justify-center hover:bg-[#8de15c]/5 transition-colors"><Plus size={22} /></button>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {filteredExercises.map(ex => (
-                  <div key={ex.id} className="bg-[#fcf8f8] rounded-[2rem] p-5 flex justify-between items-center border border-red-50/30">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-red-500 shadow-sm border border-gray-50"><Activity size={24} /></div>
-                      <div><h4 className="font-black text-[#3a4746]">{ex.name}</h4><p className="text-[#b9c3c1] text-[10px] font-black uppercase tracking-widest mt-1">{ex.duration} • {ex.time}</p></div>
+                  <div key={ex.id} className="bg-[#fcf8f8] rounded-[1.5rem] p-4 flex justify-between items-center border border-red-50/30">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-lg bg-white flex items-center justify-center text-red-500 shadow-xs border border-gray-50"><Activity size={20} /></div>
+                      <div><h4 className="font-black text-[#3a4746] text-sm">{ex.name}</h4><p className="text-[#b9c3c1] text-[9px] font-black uppercase tracking-widest">{ex.duration} • {ex.time}</p></div>
                     </div>
-                    <span className="text-[#ef4444] font-black text-lg">-{ex.calories} <span className="text-[10px] opacity-60">CAL</span></span>
+                    <span className="text-[#ef4444] font-black text-base">-{ex.calories} <span className="text-[9px] opacity-60">CAL</span></span>
                   </div>
                 ))}
-                {filteredExercises.length === 0 && <p className="text-center py-4 text-[11px] font-black text-[#b9c3c1] uppercase tracking-widest italic opacity-60">No exercises logged...</p>}
+                {filteredExercises.length === 0 && <p className="text-center py-2 text-[10px] font-black text-[#b9c3c1] uppercase tracking-widest italic opacity-60">No exercises logged...</p>}
               </div>
             </div>
 
-            <div className="bg-white rounded-[3rem] p-8 shadow-sm border border-white/80 flex justify-between items-center">
-              <div className="flex items-center gap-5">
-                <div className="w-16 h-16 bg-[#ffe9c9] rounded-2xl flex items-center justify-center shadow-sm border border-white"><Scale className="w-8 h-8 text-[#ffa024]" /></div>
-                <div><h4 className="font-black text-[#3a4746] text-xl tracking-tight">Weigh-in</h4><p className="text-[#b9c3c1] text-sm font-black uppercase mt-1 tracking-wider">{weightLogs[0]?.weight || biometrics.weight} <span className="text-[10px]">KG</span></p></div>
+            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80 flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-[#ffe9c9] rounded-xl flex items-center justify-center shadow-xs border border-white"><Scale className="w-7 h-7 text-[#ffa024]" /></div>
+                <div><h4 className="font-black text-[#3a4746] text-lg tracking-tight">Weigh-in</h4><p className="text-[#b9c3c1] text-xs font-black uppercase tracking-wider">{weightLogs[0]?.weight || biometrics.weight} <span className="text-[9px]">KG</span></p></div>
               </div>
-              <button onClick={() => setShowWeightModal(true)} className="px-8 py-3.5 bg-[#f8fafb] border border-[#f1f4f5] rounded-2xl text-[#3a4746] font-black text-xs hover:bg-[#eff3f4] transition-all active:scale-95 shadow-sm">Record</button>
+              <button onClick={() => setShowWeightModal(true)} className="px-6 py-2.5 bg-[#f8fafb] border border-[#f1f4f5] rounded-xl text-[#3a4746] font-black text-[10px] hover:bg-[#eff3f4] transition-all active:scale-95 shadow-xs">Record</button>
             </div>
 
-            <div className="bg-white rounded-[3.5rem] p-10 shadow-sm border border-white/80 transition-all">
-              <div className="flex justify-between items-center mb-10">
+            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-white/80 transition-all">
+              <div className="flex justify-between items-center mb-6 px-1">
                 <div>
-                  <h3 className="text-3xl font-black text-[#3a4746] tracking-tight">Water</h3>
-                  <div className="bg-[#e9f4ff] text-[#309af0] text-[9px] font-black px-4 py-1.5 rounded-lg uppercase tracking-widest mt-2 border border-blue-50">Goal: 2000ml</div>
+                  <h3 className="text-xl font-black text-[#3a4746] tracking-tight">Water</h3>
+                  <div className="bg-[#e9f4ff] text-[#309af0] text-[8px] font-black px-3 py-1 rounded-md uppercase tracking-widest mt-1 border border-blue-50">Goal: 2000ml</div>
                 </div>
-                <div className="bg-[#f8fafb] text-[#309af0] px-6 py-3 rounded-2xl font-black text-lg border border-white shadow-sm">60% <span className="text-[10px] text-gray-300 ml-1">Daily</span></div>
+                <div className="bg-[#f8fafb] text-[#309af0] px-4 py-2 rounded-xl font-black text-base border border-white shadow-xs">60% <span className="text-[9px] text-gray-300 ml-1">Daily</span></div>
               </div>
-              <div className="flex justify-between items-center gap-3 px-1">
+              <div className="flex justify-between items-center gap-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <button key={i} className="relative w-8 h-14 flex flex-col items-center">
-                    <div className="w-full h-full rounded-b-2xl border-2 border-[#f1f4f5] bg-white transition-all overflow-hidden relative shadow-sm">
+                  <button key={i} className="relative w-7 h-11 flex flex-col items-center">
+                    <div className="w-full h-full rounded-b-xl border-2 border-[#f1f4f5] bg-white transition-all overflow-hidden relative shadow-xs">
                       <motion.div initial={{ height: i < 3 ? '75%' : '0%' }} className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#309af0] to-[#60b3f5]" />
                     </div>
                   </button>

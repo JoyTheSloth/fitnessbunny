@@ -314,10 +314,10 @@ export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
 
   return (
     <div className="h-full overflow-y-auto">
-      <header className="fixed top-0 left-0 w-full z-40 bg-[#eff3f4]/80 backdrop-blur-md pt-8 pb-3 px-4 shadow-none">
+      <header className="fixed top-0 left-0 w-full z-40 bg-transparent pt-8 pb-3 px-4 shadow-none">
         <div className="flex items-center justify-center gap-4 relative max-w-2xl mx-auto">
           <ChevronLeft className="w-5 h-5 text-[#3a4746]" />
-          <h1 className="text-xl font-bold text-[#3a4746]">Library</h1>
+          <h1 className="text-xl font-black text-[#3a4746] tracking-tight">Library</h1>
           <ChevronRight className="w-5 h-5 text-[#b9c3c1]" />
           
           <button onClick={onOpenPremium} className="absolute right-0 top-1/2 -translate-y-1/2 bg-gradient-to-r from-[#ffa024] to-[#f55938] text-white text-[10px] uppercase font-extrabold px-3 py-1.5 rounded-full shadow-[0_4px_10px_rgba(255,160,36,0.3)] hover:-translate-y-[calc(50%+1px)] transition-transform flex items-center gap-1 active:scale-95">

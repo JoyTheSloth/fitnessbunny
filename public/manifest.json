@@ -1,0 +1,17 @@
+{
+  "name": "FitnessBunny",
+  "short_name": "Bunny",
+  "description": "Your high-fidelity AI Calorie Oracle and Workout Sanctuary.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A1F",
+  "theme_color": "#8de15c",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
