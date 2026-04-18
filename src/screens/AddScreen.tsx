@@ -27,6 +27,7 @@ export default function AddScreen({ initialCategory = 'Breakfast', onBack, onSca
     carbs: '',
     protein: '',
     fat: '',
+    fiber: '',
     ingredients: ''
   });
 
@@ -45,7 +46,7 @@ export default function AddScreen({ initialCategory = 'Breakfast', onBack, onSca
           model: "llama-3.3-70b-versatile",
           messages: [{
             role: "system",
-            content: `Analyze the meal description. Return ONLY JSON: { "name": string, "calories": number, "carbs": number, "protein": number, "fat": number, "ingredients": string, "follow_up": string | null }`
+            content: `Analyze the meal description. Return ONLY JSON: { "name": string, "calories": number, "carbs": number, "protein": number, "fat": number, "fiber": number, "ingredients": string, "follow_up": string | null }`
           }, {
             role: "user",
             content: aiInput
@@ -63,6 +64,7 @@ export default function AddScreen({ initialCategory = 'Breakfast', onBack, onSca
         carbs: parsed.carbs?.toString() || '',
         protein: parsed.protein?.toString() || '',
         fat: parsed.fat?.toString() || '',
+        fiber: parsed.fiber?.toString() || '',
         ingredients: parsed.ingredients || ''
       });
       
@@ -86,6 +88,7 @@ export default function AddScreen({ initialCategory = 'Breakfast', onBack, onSca
       carbs: parseInt(mealForm.carbs || '0'),
       protein: parseInt(mealForm.protein || '0'),
       fat: parseInt(mealForm.fat || '0'),
+      fiber: parseInt(mealForm.fiber || '0'),
       type: activeTab as any,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
@@ -201,6 +204,18 @@ export default function AddScreen({ initialCategory = 'Breakfast', onBack, onSca
                     type="number" placeholder="g" 
                     value={mealForm.fat}
                     onChange={e => setMealForm({...mealForm, fat: e.target.value})}
+                    className="w-full bg-[#f8fafb] border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-[#8de15c]/30" 
+                  />
+               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Fiber (g)</label>
+                  <input 
+                    type="number" placeholder="g" 
+                    value={mealForm.fiber}
+                    onChange={e => setMealForm({...mealForm, fiber: e.target.value})}
                     className="w-full bg-[#f8fafb] border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-[#8de15c]/30" 
                   />
                </div>

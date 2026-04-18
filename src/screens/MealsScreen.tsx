@@ -1,10 +1,12 @@
 "use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChefHat, Search, Filter, Ghost, ChevronLeft, ChevronRight, Sparkles, Clock, Flame, Heart, PlayCircle, BrainCircuit, Loader2 } from 'lucide-react';
+import { ChefHat, Search, Filter, Ghost, ChevronLeft, ChevronRight, Sparkles, Clock, Flame, Heart, PlayCircle, BrainCircuit, Loader2, Plus, ArrowRight, Utensils } from 'lucide-react';
+import { generateRecipesAI } from '../services/aiService';
 interface Recipe {
   id: string;
   name: string;
+  coreEmojis?: string;
   calories: number;
   time: string;
   category: string;
@@ -17,6 +19,7 @@ interface Recipe {
     carbs: number;
     protein: number;
     fat: number;
+    fiber: number;
   };
 }
 
@@ -24,10 +27,11 @@ const MOCK_RECIPES: Recipe[] = [
   {
     id: '1',
     name: 'Avocado Zest Toast',
+    coreEmojis: '🥑🍞',
     calories: 342,
     time: '10 min',
     category: 'Breakfast',
-    image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=2080&auto=format&fit=crop',
+    image: '/recipes/recipe1.png',
     tags: ['Vegan', 'Quick'],
     isFavorite: true,
     ingredients: ['2 slices Sourdough Bread', '1 ripe Avocado', 'Red Pepper Flakes', 'Lemon Zest', 'Extra Virgin Olive Oil'],
@@ -42,10 +46,11 @@ const MOCK_RECIPES: Recipe[] = [
   {
     id: '2',
     name: 'Honey Glazed Salmon',
+    coreEmojis: '🍣🍯',
     calories: 485,
     time: '25 min',
     category: 'Dinner',
-    image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=2074&auto=format&fit=crop',
+    image: '/recipes/recipe3.png',
     tags: ['High Protein', 'Omega-3'],
     isFavorite: false,
     ingredients: ['6oz Salmon Fillet', '1 tbsp Honey', '1 tbsp Soy Sauce', '1 tsp Ginger (grated)', 'Asparagus spears'],
@@ -60,10 +65,11 @@ const MOCK_RECIPES: Recipe[] = [
   {
     id: '3',
     name: 'Rainbow Buddha Bowl',
+    coreEmojis: '🥗🌈',
     calories: 320,
     time: '15 min',
     category: 'Lunch',
-    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop',
+    image: '/recipes/recipe7.png',
     tags: ['Gluten Free', 'Fresh'],
     isFavorite: true,
     ingredients: ['Quinoa', 'Purple Cabbage', 'Carrots', 'Chickpeas', 'Tahini Dressing'],
@@ -81,7 +87,7 @@ const MOCK_RECIPES: Recipe[] = [
     calories: 210,
     time: '30 min',
     category: 'Snack',
-    image: 'https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?q=80&w=2070&auto=format&fit=crop',
+    image: '/recipes/recipe8.png',
     tags: ['Fiber', 'Low Fat'],
     isFavorite: false,
     ingredients: ['2 medium Sweet Potatoes', '1 tbsp Olive Oil', 'Smoked Paprika', 'Garlic Powder'],
@@ -99,7 +105,7 @@ const MOCK_RECIPES: Recipe[] = [
     calories: 180,
     time: '5 min',
     category: 'Breakfast',
-    image: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?q=80&w=1965&auto=format&fit=crop',
+    image: '/recipes/recipe4.png',
     tags: ['Shake', 'Keto'],
     isFavorite: false,
     ingredients: ['Mixed Berries', 'Vanilla Protein Powder', 'Almond Milk', 'Chia Seeds'],
@@ -117,7 +123,7 @@ const MOCK_RECIPES: Recipe[] = [
     calories: 410,
     time: '20 min',
     category: 'Lunch',
-    image: 'https://images.unsplash.com/photo-1543332164-6e82f355badc?q=80&w=2070&auto=format&fit=crop',
+    image: '/recipes/recipe10.png',
     tags: ['Healthy', 'Fiber'],
     isFavorite: false,
     ingredients: ['Quinoa', 'Cucumber', 'Cherry Tomatoes', 'Feta Cheese', 'Olives'],
@@ -138,12 +144,49 @@ const ALL_TAGS = [
   'Fiber', 'Low Fat', 'Keto', 'Healthy'
 ];
 
-export default function MealsScreen({ onOpenPremium }: { onOpenPremium?: () => void }) {
+interface MealsScreenProps {
+  onOpenPremium?: () => void;
+}
+
+export default function MealsScreen({ onOpenPremium }: MealsScreenProps) {
+  const [ingredients, setIngredients] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [suggestedRecipes, setSuggestedRecipes] = useState<any[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [recipes, setRecipes] = useState(MOCK_RECIPES);
+
+  const handleGenerate = async () => {
+    if (!ingredients.trim()) return;
+    setIsGenerating(true);
+    
+    const aiRecipes = await generateRecipesAI(ingredients);
+    if (aiRecipes && Array.isArray(aiRecipes)) {
+      const formatted = aiRecipes.map((r: any) => ({
+        id: Math.random().toString(36).substr(2, 9),
+        name: r.title || "AI Recipe",
+        coreEmojis: r.coreEmojis || "🥗",
+        calories: r.cals || 0,
+        time: "15 min",
+        category: "AI Crafted",
+        image: r.img || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200",
+        tags: ["AI Suggestion"],
+        isFavorite: false,
+        ingredients: r.ingredients || [],
+        instructions: r.instructions || [],
+        macros: { 
+          carbs: r.macros?.carbs || 0,
+          protein: r.macros?.protein || 0,
+          fat: r.macros?.fat || 0,
+          fiber: r.macros?.fiber || 0
+        }
+      }));
+      setSuggestedRecipes([...formatted, ...suggestedRecipes]);
+    }
+    setIsGenerating(false);
+  };
   
 
 
@@ -212,18 +255,22 @@ export default function MealsScreen({ onOpenPremium }: { onOpenPremium?: () => v
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-[#fffbeb] p-4 rounded-[2rem] text-center border border-[#fef3c7]">
-              <span className="block text-[10px] font-extrabold text-[#d97706] uppercase tracking-[0.15em] mb-1">Carbs</span>
-              <span className="text-lg font-black text-[#3a4746]">{selectedRecipe.macros.carbs}g</span>
+          <div className="grid grid-cols-4 gap-3">
+            <div className="bg-[#fffbeb] p-3 rounded-[1.5rem] text-center border border-[#fef3c7]">
+              <span className="block text-[8px] font-extrabold text-[#d97706] uppercase tracking-[0.1em] mb-0.5">Carbs</span>
+              <span className="text-sm font-black text-[#3a4746]">{selectedRecipe.macros.carbs}g</span>
             </div>
-            <div className="bg-[#eff6ff] p-4 rounded-[2rem] text-center border border-[#dbeafe]">
-              <span className="block text-[10px] font-extrabold text-[#2563eb] uppercase tracking-[0.15em] mb-1">Protein</span>
-              <span className="text-lg font-black text-[#3a4746]">{selectedRecipe.macros.protein}g</span>
+            <div className="bg-[#eff6ff] p-3 rounded-[1.5rem] text-center border border-[#dbeafe]">
+              <span className="block text-[8px] font-extrabold text-[#2563eb] uppercase tracking-[0.1em] mb-0.5">Protein</span>
+              <span className="text-sm font-black text-[#3a4746]">{selectedRecipe.macros.protein}g</span>
             </div>
-            <div className="bg-[#fff7ed] p-4 rounded-[2rem] text-center border border-[#ffedd5]">
-              <span className="block text-[10px] font-extrabold text-[#ea580c] uppercase tracking-[0.15em] mb-1">Fat</span>
-              <span className="text-lg font-black text-[#3a4746]">{selectedRecipe.macros.fat}g</span>
+            <div className="bg-[#fff7ed] p-3 rounded-[1.5rem] text-center border border-[#ffedd5]">
+              <span className="block text-[8px] font-extrabold text-[#ea580c] uppercase tracking-[0.1em] mb-0.5">Fat</span>
+              <span className="text-sm font-black text-[#3a4746]">{selectedRecipe.macros.fat}g</span>
+            </div>
+            <div className="bg-[#f0fdf4] p-3 rounded-[1.5rem] text-center border border-[#dcfce7]">
+              <span className="block text-[8px] font-extrabold text-[#16a34a] uppercase tracking-[0.1em] mb-0.5">Fiber</span>
+              <span className="text-sm font-black text-[#3a4746]">{selectedRecipe.macros.fiber}g</span>
             </div>
           </div>
 
@@ -279,7 +326,7 @@ export default function MealsScreen({ onOpenPremium }: { onOpenPremium?: () => v
         </div>
       </header>
 
-      <main className="pt-24 px-6 max-w-2xl mx-auto space-y-6 pb-32">
+      <main className="pt-24 px-6 max-w-2xl mx-auto space-y-8 pb-32">
         <div className="space-y-4">
           <div className="flex gap-3">
               <div className="flex-1 bg-white border border-white/80 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex items-center px-5 py-3 rounded-[1.5rem] gap-3 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
@@ -343,6 +390,85 @@ export default function MealsScreen({ onOpenPremium }: { onOpenPremium?: () => v
           </div>
         </div>
 
+        {/* AI Recipe Creator Section - Now as the First Card after filters */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="bg-white rounded-[2.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white space-y-5"
+        >
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 bg-[#309af0]/10 rounded-2xl flex items-center justify-center text-[#309af0]"><Utensils className="w-5 h-5" /></div>
+             <div>
+               <h3 className="font-black text-[#3a4746] text-lg leading-tight">Recipe Creator</h3>
+               <p className="text-[10px] font-extrabold text-[#89979b] uppercase tracking-widest">AI Culinary Assistant</p>
+             </div>
+          </div>
+          
+          <div className="space-y-3">
+            <textarea 
+              value={ingredients}
+              onChange={(e) => setIngredients(e.target.value)}
+              placeholder="List your ingredients... (e.g. egg, bread, butter)"
+              className="w-full h-24 bg-[#f8fafb] border border-[#e2e8e9] rounded-2xl p-4 text-sm font-bold text-[#3a4746] placeholder-[#b9c3c1] resize-none outline-none focus:ring-2 focus:ring-[#309af0]/20 transition-all"
+            />
+            
+            <motion.button 
+              whileTap={{ scale: 0.98 }}
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="w-full bg-[#309af0] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-[#309af0]/20 flex items-center justify-center gap-3 hover:brightness-105 disabled:opacity-50"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Chef is searching...</span>
+                </>
+              ) : (
+                <>
+                  <BrainCircuit className="w-4 h-4" />
+                  <span>Generate AI Recipe</span>
+                </>
+              )}
+            </motion.button>
+          </div>
+
+          <AnimatePresence>
+            {suggestedRecipes.length > 0 && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                className="pt-4 border-t border-gray-50 flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
+              >
+                {suggestedRecipes.map((r, i) => (
+                  <motion.div 
+                    key={r.id}
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                    onClick={() => setSelectedRecipe(r as Recipe)}
+                    className="flex-shrink-0 w-48 bg-[#f8fafb] p-3 rounded-2xl border border-[#e2e8e9] group cursor-pointer"
+                  >
+                    <div className="h-24 rounded-xl overflow-hidden mb-2 relative">
+                       <img src={r.image} alt={r.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                       <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md text-[8px] font-black text-[#309af0]">AI CHOICE</div>
+                       {r.coreEmojis && (
+                         <div className="absolute top-2 left-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-lg text-xs shadow-lg">
+                            {r.coreEmojis}
+                         </div>
+                       )}
+                    </div>
+                    <h4 className="font-extrabold text-[#3a4746] text-xs leading-tight mb-1 truncate">{r.name}</h4>
+                    <div className="flex justify-between items-center">
+                       <span className="text-[9px] font-black text-[#89979b]">{r.calories} kcal</span>
+                       <Plus className="w-3.5 h-3.5 text-[#309af0]" />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <AnimatePresence mode="popLayout">
             {filteredRecipes.length > 0 ? (
@@ -359,6 +485,11 @@ export default function MealsScreen({ onOpenPremium }: { onOpenPremium?: () => v
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img src={recipe.image} alt={recipe.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    {recipe.coreEmojis && (
+                      <div className="absolute top-4 left-4 bg-black/20 backdrop-blur-md px-3 py-1.5 rounded-xl text-lg shadow-xl z-20">
+                         {recipe.coreEmojis}
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                       <button className="bg-white shadow-lg text-primary rounded-full px-4 py-2 text-[10px] font-extrabold flex items-center gap-1 hover:scale-105 active:scale-95 transition-transform">
                         <PlayCircle className="w-3 h-3" /> View Recipe

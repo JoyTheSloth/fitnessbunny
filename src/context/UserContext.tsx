@@ -69,8 +69,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<UserProfile>({ 
-    name: 'Alex Sterling', 
-    email: 'alex.s@calpal.ai' 
+    name: 'Shivani Sah', 
+    email: 'shivani@bunny.ai' 
   });
   
   const [biometrics, setBiometrics] = useState<Biometrics>({ 

@@ -9,24 +9,34 @@ import ProfileScreen from './screens/ProfileScreen';
 import ScanScreen from './screens/ScanScreen';
 import PremiumScreen from './screens/PremiumScreen';
 import AIHubScreen from './screens/AIHubScreen';
-import { UserProvider } from './context/UserContext';
+import WelcomeScreen from './screens/WelcomeScreen';
+import { UserProvider, useUser } from './context/UserContext';
 import { AnimatePresence } from 'motion/react';
 
-export default function App() {
+function AppContent() {
+  const { profile, updateProfile } = useUser();
+  const [hasOnboarded, setHasOnboarded] = useState(false);
   const [activeTab, setActiveTab] = useState('diary');
   const [targetCategory, setTargetCategory] = useState('Breakfast');
 
-  // Overlay states — completely decoupled from tab navigation
+  // Overlay states
   const [showScan, setShowScan] = useState(false);
   const [showAddMeal, setShowAddMeal] = useState(false);
   const [showPremium, setShowPremium] = useState(false);
 
-  // Opens the Add dialog with a specific meal category (Breakfast, Lunch, etc.)
-  // Called ONLY from DiaryScreen buttons — never from tab navigation
   const handleOpenAddDialog = (category: string) => {
     setTargetCategory(category);
     setShowAddMeal(true);
   };
+
+  const handleOnboard = (name: string, email: string) => {
+    updateProfile({ name, email });
+    setHasOnboarded(true);
+  };
+
+  if (!hasOnboarded) {
+    return <WelcomeScreen onStart={handleOnboard} />;
+  }
 
   const renderScreen = () => {
     switch (activeTab) {
@@ -68,46 +78,52 @@ export default function App() {
   };
 
   return (
-    <UserProvider>
-      <div className="font-sans text-on-surface h-screen relative overflow-hidden bg-white">
-        {/* Main screen — rendered behind overlays */}
-        <div className="absolute inset-0 z-10">
-          {renderScreen()}
-        </div>
-
-        {/* Bottom nav — fixed on top */}
-        <div className="fixed bottom-0 left-0 right-0 z-[100]">
-          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
-        </div>
-
-        {/* Overlays — triggered by in-page buttons only */}
-        <AnimatePresence>
-          {showAddMeal && (
-            <div className="fixed inset-0 z-[200]">
-              <AddScreen
-                initialCategory={targetCategory}
-                onBack={() => setShowAddMeal(false)}
-                onScanClick={() => {
-                  setShowAddMeal(false);
-                  setShowScan(true);
-                }}
-              />
-            </div>
-          )}
-
-          {showScan && (
-            <div className="fixed inset-0 z-[210]">
-              <ScanScreen closeScan={() => setShowScan(false)} />
-            </div>
-          )}
-
-          {showPremium && (
-            <div className="fixed inset-0 z-[220]">
-              <PremiumScreen onClose={() => setShowPremium(false)} />
-            </div>
-          )}
-        </AnimatePresence>
+    <div className="font-sans text-on-surface h-screen relative overflow-hidden bg-white">
+      {/* Main screen — rendered behind overlays */}
+      <div className="absolute inset-0 z-10">
+        {renderScreen()}
       </div>
+
+      {/* Bottom nav — fixed on top */}
+      <div className="fixed bottom-0 left-0 right-0 z-[100]">
+        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div>
+
+      {/* Overlays — triggered by in-page buttons only */}
+      <AnimatePresence>
+        {showAddMeal && (
+          <div className="fixed inset-0 z-[200]">
+            <AddScreen
+              initialCategory={targetCategory}
+              onBack={() => setShowAddMeal(false)}
+              onScanClick={() => {
+                setShowAddMeal(false);
+                setShowScan(true);
+              }}
+            />
+          </div>
+        )}
+
+        {showScan && (
+          <div className="fixed inset-0 z-[210]">
+            <ScanScreen closeScan={() => setShowScan(false)} />
+          </div>
+        )}
+
+        {showPremium && (
+          <div className="fixed inset-0 z-[220]">
+            <PremiumScreen onClose={() => setShowPremium(false)} />
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <UserProvider>
+      <AppContent />
     </UserProvider>
   );
 }

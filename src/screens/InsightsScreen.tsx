@@ -1,10 +1,30 @@
 "use client";
-import React, { useState } from 'react';
-import { Settings, Egg, Sparkles, Flame, Apple, ChevronLeft, ChevronRight, Plus, Camera, Utensils } from 'lucide-react';
+import React from 'react';
+import { Egg, Sparkles, Flame, Apple, ChevronLeft, ChevronRight, Utensils, Leaf } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useUser } from '../context/UserContext';
 
 export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () => void }) {
+  const { meals, dynamicTargets, weightLogs } = useUser();
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const todayIndex = new Date().getDay(); // 0-6
+
+  const totalFoodCals = meals.reduce((acc, m) => acc + m.calories, 0);
+  const totalCarbs = meals.reduce((acc, m) => acc + m.carbs, 0);
+  const totalProtein = meals.reduce((acc, m) => acc + m.protein, 0);
+  const totalFat = meals.reduce((acc, m) => acc + m.fat, 0);
+  const totalFiber = meals.reduce((acc, m) => acc + (m.fiber || 0), 0);
+  
+  const goalCals = dynamicTargets.cals;
+  const macroTotal = (totalCarbs * 4) + (totalProtein * 4) + (totalFat * 9) || 1;
+  const carbPct = Math.round(((totalCarbs * 4) / macroTotal) * 100);
+  const proteinPct = Math.round(((totalProtein * 4) / macroTotal) * 100);
+  const fatPct = Math.max(0, 100 - carbPct - proteinPct);
+
+  // Targets for progress bars
+  const targetProtein = dynamicTargets.protein;
+  const targetCarbs = dynamicTargets.carbs;
+  const targetFat = dynamicTargets.fat;
 
   return (
     <div className="h-full overflow-y-auto">
@@ -45,7 +65,7 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                       <circle className="text-[#f0f3f4] stroke-current" cx="56" cy="56" r="48" strokeWidth="10" fill="none" />
                       <motion.circle 
                         initial={{ strokeDashoffset: 301.6 }}
-                        animate={{ strokeDashoffset: 301.6 * (1 - 0.75) }}
+                        animate={{ strokeDashoffset: 301.6 * (1 - Math.min(totalFoodCals / goalCals, 1)) }}
                         transition={{ duration: 1.5, ease: "easeOut" }}
                         className="text-[#8de15c] stroke-current" 
                         cx="56" cy="56" r="48" strokeWidth="10" fill="none" 
@@ -53,27 +73,30 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                       />
                     </svg>
                     <div className="flex flex-col items-center justify-center text-center mt-1 z-10">
-                      <span className="text-2xl font-black text-[#3a4746] leading-none">1,292</span>
-                      <span className="text-[9px] text-[#89979b] font-extrabold uppercase mt-1 tracking-wider">Avg Cal</span>
+                      <span className="text-2xl font-black text-[#3a4746] leading-none">{totalFoodCals}</span>
+                      <span className="text-[9px] text-[#89979b] font-extrabold uppercase mt-1 tracking-wider">Today</span>
                     </div>
                   </div>
                   
                   <div className="bg-white border border-[#eff3f4] rounded-xl px-4 py-2 flex flex-col items-center shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
                     <span className="text-[9px] text-[#89979b] font-extrabold uppercase tracking-wider">Net Change</span>
-                    <span className="text-xs font-bold text-[#3a4746]">−50 Cal <span className="text-[#8de15c] text-[10px]">▼</span></span>
+                    <span className="text-xs font-bold text-[#3a4746]">{totalFoodCals - goalCals > 0 ? '+' : ''}{totalFoodCals - goalCals} Cal <span className={`${totalFoodCals - goalCals > 0 ? 'text-red-400' : 'text-[#8de15c]'} text-[10px]`}>{totalFoodCals - goalCals > 0 ? '▲' : '▼'}</span></span>
                   </div>
                 </div>
 
                 <div className="flex-1 flex justify-between items-end h-28 px-1">
                   {days.map((day, i) => {
-                    const heights = [45, 60, 55, 80, 70, 65, 90];
-                    const isToday = day === 'Fri';
+                    // Mock heights for other days, actual for today
+                    const mockHeights = [45, 60, 55, 80, 70, 65, 90];
+                    const actualHeight = Math.min((totalFoodCals / goalCals) * 100, 100);
+                    const h = i === todayIndex ? actualHeight : mockHeights[i];
+                    const isToday = i === todayIndex;
                     return (
                       <div key={day} className="flex flex-col items-center gap-3">
                         <div className="w-[12px] bg-[#f0f3f4] rounded-full relative overflow-hidden h-24">
                           <motion.div 
                             initial={{ height: 0 }}
-                            animate={{ height: `${heights[i]}%` }}
+                            animate={{ height: `${h}%` }}
                             transition={{ duration: 1, delay: i * 0.1 }}
                             className={`absolute bottom-0 left-0 w-full rounded-full ${isToday ? 'bg-[#8de15c]' : 'bg-[#dce5e7]'} opacity-80`}
                           />
@@ -104,12 +127,12 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                 <div className="flex flex-col items-center gap-6">
                   <div className="relative w-32 h-32">
                     <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                      {/* Carbs 54% (Yellowish Gold) */}
-                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#edc541" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - 0.54)} strokeLinecap="round" />
-                      {/* Protein 42% (Blue) */}
-                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#309af0" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - 0.42)} strokeLinecap="round" className="transform rotate-[194deg] origin-center" />
-                      {/* Fat 4% (Orange) */}
-                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#ffa024" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - 0.04)} strokeLinecap="round" className="transform rotate-[345deg] origin-center" />
+                      {/* Carbs */}
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#edc541" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (carbPct / 100))} strokeLinecap="round" />
+                      {/* Protein */}
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#309af0" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (proteinPct / 100))} strokeLinecap="round" style={{ transform: `rotate(${carbPct * 3.6}deg)`, transformOrigin: 'center' }} />
+                      {/* Fat */}
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#ffa024" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (fatPct / 100))} strokeLinecap="round" style={{ transform: `rotate(${(carbPct + proteinPct) * 3.6}deg)`, transformOrigin: 'center' }} />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <Sparkles className="w-5 h-5 text-[#8de15c]" fill="currentColor" />
@@ -119,15 +142,15 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                   <div className="flex flex-wrap justify-center gap-3">
                     <div className="flex items-center gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-full bg-[#edc541]"></div>
-                      <span className="text-[#3a4746] text-[10px] font-bold">54% Carbs</span>
+                      <span className="text-[#3a4746] text-[10px] font-bold">{carbPct}% Carbs</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-full bg-[#309af0]"></div>
-                      <span className="text-[#3a4746] text-[10px] font-bold">42% Protein</span>
+                      <span className="text-[#3a4746] text-[10px] font-bold">{proteinPct}% Protein</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-full bg-[#ffa024]"></div>
-                      <span className="text-[#3a4746] text-[10px] font-bold">4% Fat</span>
+                      <span className="text-[#3a4746] text-[10px] font-bold">{fatPct}% Fat</span>
                     </div>
                   </div>
                 </div>
@@ -136,12 +159,12 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
                       <span className="flex items-center gap-2 text-[#edc541]"><Apple className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Carbs</span></span>
-                      <span>54% <span className="text-[#89979b] font-medium ml-1">/ 50% Target</span></span>
+                      <span>{carbPct}% <span className="text-[#89979b] font-medium ml-1">/ 50% Target</span></span>
                     </div>
                     <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
                       <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: '54%' }}
+                        animate={{ width: `${carbPct}%` }}
                         transition={{ duration: 1.2, ease: "easeOut" }}
                         className="h-full bg-[#edc541] rounded-full"
                       />
@@ -151,12 +174,12 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
                       <span className="flex items-center gap-2 text-[#309af0]"><Egg className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Protein</span></span>
-                      <span>42% <span className="text-[#89979b] font-medium ml-1">/ 35% Target</span></span>
+                      <span>{proteinPct}% <span className="text-[#89979b] font-medium ml-1">/ 35% Target</span></span>
                     </div>
                     <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
                       <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: '42%' }}
+                        animate={{ width: `${proteinPct}%` }}
                         transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
                         className="h-full bg-[#309af0] rounded-full"
                       />
@@ -166,12 +189,12 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
                       <span className="flex items-center gap-2 text-[#ffa024]"><Flame className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Fat</span></span>
-                      <span>4% <span className="text-[#89979b] font-medium ml-1">/ 15% Target</span></span>
+                      <span>{fatPct}% <span className="text-[#89979b] font-medium ml-1">/ 15% Target</span></span>
                     </div>
                     <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
                       <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: '4%' }}
+                        animate={{ width: `${fatPct}%` }}
                         transition={{ duration: 1.2, ease: "easeOut", delay: 0.4 }}
                         className="h-full bg-[#ffa024] rounded-full"
                       />
@@ -192,11 +215,11 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-baseline gap-2">
                 <h2 className="text-[17px] font-bold text-[#3a4746]">Weight Trend</h2>
-                <span className="text-[#89979b] text-[11px] font-extrabold uppercase tracking-widest">(90 Days)</span>
+                <span className="text-[#89979b] text-[11px] font-extrabold uppercase tracking-widest">(Latest Logs)</span>
               </div>
-              <button className="w-8 h-8 rounded-full bg-[#8de15c] text-white flex items-center justify-center hover:bg-[#6bc438] transition-colors shadow-sm">
-                <Plus className="w-5 h-5" />
-              </button>
+              <div className="text-right">
+                <span className="text-2xl font-black text-[#3a4746]">{weightLogs[0]?.weight} <span className="text-xs font-bold text-[#a4afb3]">kg</span></span>
+              </div>
             </div>
             
             <div className="relative h-44 w-full mt-2 pr-2">
@@ -244,8 +267,8 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
           >
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[#3a4746] text-[10px] font-extrabold uppercase tracking-widest mb-1 shadow-white">Daily Avg</p>
-                <h3 className="text-4xl font-extrabold text-[#3a4746] mt-1 drop-shadow-sm">1,840 <span className="text-base font-bold text-[#89979b]">kcal</span></h3>
+                <p className="text-[#3a4746] text-[10px] font-extrabold uppercase tracking-widest mb-1 shadow-white">Logged Today</p>
+                <h3 className="text-4xl font-extrabold text-[#3a4746] mt-1 drop-shadow-sm">{totalFoodCals} <span className="text-base font-bold text-[#89979b]">kcal</span></h3>
               </div>
               <div className="bg-white/80 border border-white shadow-sm px-3 py-1.5 rounded-full flex items-center gap-1.5">
                 <Flame className="w-4 h-4 text-orange-500" fill="currentColor" />
@@ -345,14 +368,13 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             <div className="space-y-2">
               <div className="flex justify-between text-sm font-extrabold text-[#3a4746]">
                 <span className="flex items-center gap-2"><Utensils className="w-4 h-4 text-[#309af0]" fill="currentColor" /> Protein</span>
-                <span className="font-bold">120g <span className="text-[#89979b] font-medium text-xs">/ 150g</span></span>
+                <span className="font-bold">{totalProtein}g <span className="text-[#89979b] font-medium text-xs">/ {targetProtein}g</span></span>
               </div>
               <div className="h-4 w-full bg-white/50 shadow-inner rounded-full overflow-hidden p-0.5 border border-white/60">
                 <motion.div 
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '80%' }}
-                  viewport={{ once: true }}
-                  className="h-full bg-[#309af0] rounded-full shadow-sm"
+                   initial={{ width: 0 }}
+                   animate={{ width: `${Math.min((totalProtein / targetProtein) * 100, 100)}%` }}
+                   className="h-full bg-[#309af0] rounded-full shadow-sm"
                 />
               </div>
             </div>
@@ -360,14 +382,13 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             <div className="space-y-2">
               <div className="flex justify-between text-sm font-extrabold text-[#3a4746]">
                 <span className="flex items-center gap-2"><Apple className="w-4 h-4 text-[#edc541]" fill="currentColor"/> Carbs</span>
-                <span className="font-bold">210g <span className="text-[#89979b] font-medium text-xs">/ 200g</span></span>
+                <span className="font-bold">{totalCarbs}g <span className="text-[#89979b] font-medium text-xs">/ {targetCarbs}g</span></span>
               </div>
               <div className="h-4 w-full bg-white/50 shadow-inner rounded-full overflow-hidden p-0.5 border border-white/60">
                 <motion.div 
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '100%' }}
-                  viewport={{ once: true }}
-                  className="h-full bg-[#edc541] rounded-full shadow-sm"
+                   initial={{ width: 0 }}
+                   animate={{ width: `${Math.min((totalCarbs / targetCarbs) * 100, 100)}%` }}
+                   className="h-full bg-[#edc541] rounded-full shadow-sm"
                 />
               </div>
             </div>
@@ -375,14 +396,13 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             <div className="space-y-2">
               <div className="flex justify-between text-sm font-extrabold text-[#3a4746]">
                 <span className="flex items-center gap-2"><Flame className="w-4 h-4 text-[#ffa024]" fill="currentColor"/> Fats</span>
-                <span className="font-bold">52g <span className="text-[#89979b] font-medium text-xs">/ 70g</span></span>
+                <span className="font-bold">{totalFat}g <span className="text-[#89979b] font-medium text-xs">/ {targetFat}g</span></span>
               </div>
               <div className="h-4 w-full bg-white/50 shadow-inner rounded-full overflow-hidden p-0.5 border border-white/60">
                 <motion.div 
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '65%' }}
-                  viewport={{ once: true }}
-                  className="h-full bg-[#ffa024] rounded-full shadow-sm"
+                   initial={{ width: 0 }}
+                   animate={{ width: `${Math.min((totalFat / targetFat) * 100, 100)}%` }}
+                   className="h-full bg-[#ffa024] rounded-full shadow-sm"
                 />
               </div>
             </div>

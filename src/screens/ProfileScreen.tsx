@@ -9,7 +9,6 @@ import {
   Sparkles,
   Smile,
   Activity,
-  Cherry,
   Flame,
   BellRing,
   Sun,
@@ -20,13 +19,17 @@ import {
   User,
   Info,
   CheckCircle2,
-  Target
+  Target,
+  ShieldCheck,
+  Brain,
+  Utensils,
+  PieChart
 } from 'lucide-react';
 
-type SubPage = 'main' | 'edit_profile' | 'biometrics' | 'macros' | 'activity' | 'theme';
+type SubPage = 'main' | 'biometrics' | 'macros' | 'activity' | 'theme';
 
 export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () => void }) {
-  const { profile, biometrics, macros, goal, updateProfile, updateBiometrics, updateMacros, updateGoal } = useUser();
+  const { profile, biometrics, macros, goal, updateBiometrics, updateMacros } = useUser();
   const [currentPage, setCurrentPage] = useState<SubPage>('main');
   const [aiCoach, setAiCoach] = useState(true);
   const [smartNotif, setSmartNotif] = useState(true);
@@ -34,359 +37,219 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
   // Remaining UI states
   const [activity, setActivity] = useState('Highly Active');
   const [theme, setTheme] = useState('Light');
-  const [units, setUnits] = useState('kg ft/in');
 
   const containerVariants = {
-    initial: { opacity: 0, x: 20 },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -20 }
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -10 }
   };
 
   const renderHeader = (title: string, showBack: boolean = false) => (
-    <header className="fixed top-0 left-0 w-full z-40 bg-[#eff3f4] pt-8 pb-3 px-4 shadow-none border-b border-black/5">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-4 mt-2">
-           <div className="flex items-center gap-3">
-              {showBack ? (
-                <button 
-                  onClick={() => setCurrentPage('main')}
-                  className="w-10 h-10 rounded-full bg-white/60 border border-white flex items-center justify-center text-[#3a4746] hover:bg-white transition-colors active:scale-90"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-              ) : (
-                <div className="w-10 h-10 flex items-center justify-center text-[#3a4746]">
-                </div>
-              )}
-              {/* No Title in simple view if tabs are present */}
-           </div>
-           
-           {!showBack && (
-            <button onClick={onOpenPremium} className="bg-gradient-to-r from-[#ffa024] to-[#f55938] text-white text-[10px] uppercase font-extrabold px-3 py-1.5 rounded-full shadow-[0_4px_10px_rgba(255,160,36,0.3)] hover:-translate-y-0.5 transition-transform flex items-center gap-1 active:scale-95">
-              <Sparkles className="w-3 h-3" fill="currentColor" /> Premium
-            </button>
-           )}
-        </div>
-
-        {currentPage === 'main' && (
-          <div className="flex items-center justify-center gap-12 pb-1">
-            <button className="text-[#89979b] font-bold text-sm hover:text-[#3a4746] transition-colors relative pb-2 group">Usage</button>
-            <button className="text-[#3a4746] font-black text-xl relative pb-2">
-              Settings
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#8de15c] rounded-full"></div>
-            </button>
-          </div>
+    <header className="fixed top-0 left-0 w-full z-40 bg-[#F9FAFB]/80 backdrop-blur-xl pt-12 pb-6 px-6 border-b border-black/5">
+      <div className="max-w-xl mx-auto flex items-center justify-between">
+        {showBack ? (
+          <button 
+            onClick={() => setCurrentPage('main')}
+            className="flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-colors"
+          >
+            <ChevronLeft size={20} />
+            <span className="text-xs font-black uppercase tracking-widest">Return</span>
+          </button>
+        ) : (
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Settings</h1>
         )}
         
+        {!showBack && (
+          <button onClick={onOpenPremium} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7ED957] to-[#B5FF9C] text-white rounded-2xl shadow-lg active:scale-95 transition-all">
+            <Sparkles size={14} fill="white" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Premium</span>
+          </button>
+        )}
+
         {showBack && (
-          <div className="flex items-center justify-center pb-2">
-            <h1 className="text-xl font-black text-[#3a4746] tracking-tight">{title}</h1>
-          </div>
+          <h2 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em]">{title}</h2>
         )}
       </div>
     </header>
   );
 
   const renderMainSettings = () => (
-    <motion.div 
-      variants={containerVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="space-y-8"
-    >
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div 
-          onClick={() => setCurrentPage('edit_profile')}
-          className="bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.05)] p-6 rounded-[2.5rem] space-y-4 hover:bg-white/50 transition-colors cursor-pointer group"
-        >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-on-surface-variant text-[10px] font-extrabold uppercase tracking-widest">Status</p>
-              <h2 className="text-2xl font-extrabold text-on-surface tracking-tight mt-1 group-hover:text-primary transition-colors">{profile.name}</h2>
-            </div>
-            <span className="px-3 py-1 bg-[#c8f16c] text-[#144500] shadow-sm border border-white/50 text-[10px] font-extrabold rounded-full tracking-widest flex items-center h-6 uppercase">PREMIUM</span>
-          </div>
-          
-          <div className="space-y-2.5 mt-4">
-            <div className="flex items-center gap-3 text-on-surface-variant text-sm font-bold">
-              <div className="bg-white/60 p-1.5 rounded-lg shadow-sm border border-white/40"><Mail className="w-4 h-4 text-primary" /></div>
-              <span>{profile.email}</span>
-            </div>
-            <div className="flex items-center gap-3 text-on-surface-variant text-sm font-bold">
-              <div className="bg-white/60 p-1.5 rounded-lg shadow-sm border border-white/40"><Calendar className="w-4 h-4 text-primary" /></div>
-              <span>Joined March 2024</span>
-            </div>
+    <motion.div variants={containerVariants} initial="initial" animate="animate" exit="exit" className="space-y-8">
+      {/* Identity Summary */}
+      <div className="flex items-center gap-5 p-2">
+        <div className="w-20 h-20 rounded-3xl bg-white shadow-xl flex items-center justify-center border border-white p-2">
+          <img src="/logo.png" alt="Bunny" className="w-full h-full object-contain" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-black text-gray-900 leading-none">{profile.name}</h3>
+          <p className="text-sm font-bold text-gray-400 mt-1">{profile.email}</p>
+          <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100">
+            <ShieldCheck size={12} fill="currentColor" className="opacity-50" />
+            <span className="text-[9px] font-black uppercase tracking-widest">Verified Human</span>
           </div>
         </div>
+      </div>
 
-        <div className="bg-[#ff9656]/20 backdrop-blur-xl p-6 rounded-[2.5rem] flex flex-col justify-between border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.05)] relative overflow-hidden group">
-          <Sparkles className="absolute -top-4 -right-4 w-32 h-32 text-white/30 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700" />
-          <div className="flex justify-between items-start relative z-10">
-            <div className="w-12 h-12 bg-white/60 shadow-sm border border-white/50 rounded-2xl flex items-center justify-center">
-              <Sparkles className="text-[#db6a18] w-6 h-6" fill="currentColor" />
+      {/* AI Mastery Toggle */}
+      <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-[#7ED957] to-[#B5FF9C] shadow-[0_20px_40px_rgba(126,217,87,0.2)] text-white relative overflow-hidden group">
+        <Brain className="absolute -bottom-6 -right-6 w-32 h-32 opacity-20 group-hover:scale-110 transition-transform duration-700" />
+        <div className="relative z-10 flex justify-between items-start">
+          <div className="space-y-1">
+            <h4 className="text-xl font-black tracking-tight">AI Coach Protocol</h4>
+            <p className="text-xs font-bold text-white/80 max-w-[200px]">Neural insights and real-time metabolic optimization.</p>
+          </div>
+          <button 
+            onClick={() => setAiCoach(!aiCoach)}
+            className={`w-14 h-8 rounded-full relative transition-colors border-2 border-white/20 ${aiCoach ? 'bg-white' : 'bg-black/10'}`}
+          >
+            <motion.div 
+              animate={{ x: aiCoach ? 24 : 4 }}
+              className={`absolute top-1 w-5 h-5 rounded-full shadow-lg ${aiCoach ? 'bg-[#7ED957]' : 'bg-white'}`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Primary Telemetry Grid */}
+      <div className="grid grid-cols-2 gap-5">
+        {[
+          { label: 'Nutrition', icon: Utensils, page: 'macros', color: '#3B82F6' },
+          { label: 'Energy Level', icon: Flame, page: 'activity', color: '#F59E0B' }
+        ].map((item) => (
+          <button 
+            key={item.label}
+            onClick={() => setCurrentPage(item.page as SubPage)}
+            className="p-6 rounded-[2rem] bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-left group"
+          >
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-colors bg-gray-50 group-hover:bg-white border border-gray-50" style={{ color: item.color }}>
+              <item.icon size={22} />
             </div>
-            
-            <label className="relative inline-flex items-center cursor-pointer hover:scale-105 active:scale-95 transition-transform drop-shadow-sm">
-              <input type="checkbox" className="sr-only peer" checked={aiCoach} onChange={() => setAiCoach(!aiCoach)} />
-              <div className="w-14 h-8 bg-black/10 shadow-inner peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:shadow-[0_2px_4px_rgba(0,0,0,0.1)] after:border after:border-zinc-100 after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#ff9656]"></div>
-            </label>
-          </div>
-          <div className="mt-4 relative z-10 text-[#542200]">
-            <h3 className="font-extrabold text-lg drop-shadow-sm">AI Coach Assistant</h3>
-            <p className="text-xs font-bold leading-relaxed mt-1 opacity-80">Smart insights and friendly motivational nudges. 🐾</p>
-          </div>
-        </div>
-      </section>
+            <h5 className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">{item.label}</h5>
+            <p className="text-sm font-black text-gray-900 group-hover:text-emerald-500 transition-colors">Configure System</p>
+          </button>
+        ))}
+      </div>
 
-      <section className="bg-white/40 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/60 hover:bg-white/50 transition-colors">
-        <div className="flex justify-between items-end mb-6">
-          <div>
-            <p className="text-on-surface-variant text-[10px] font-extrabold uppercase tracking-widest mb-1">Weight Goal</p>
-            <h3 className="text-4xl font-extrabold text-on-surface tracking-tighter drop-shadow-sm">
-              {biometrics.weight}<span className="text-lg font-bold text-on-surface-variant tracking-normal"> / 70.0kg</span>
-            </h3>
+      {/* Weight Target Tracking */}
+      <div className="p-8 rounded-[2.5rem] bg-white border border-gray-100 shadow-sm space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target size={18} className="text-[#7ED957]" />
+            <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Weight Trajectory</h5>
           </div>
-          <div className="pb-1 bg-[#1d5c00]/10 px-3 py-1 bg-white/60 border border-white shadow-sm rounded-full">
-            <span className="text-[#1d5c00] font-extrabold text-[10px] tracking-widest uppercase flex items-center gap-1"><Flame className="w-3 h-3 text-[#1d5c00]" fill="currentColor"/> 2.5kg to go</span>
+          <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
+            <span className="text-[9px] font-black uppercase tracking-widest">2.5kg to goal</span>
           </div>
-        </div>
-
-        <div className="h-5 w-full bg-white/50 shadow-inner rounded-full overflow-hidden p-1 border border-white/60">
-          <div className="h-full bg-primary rounded-full shadow-sm" style={{width: '75%'}}></div>
         </div>
         
-        <div className="flex justify-between mt-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">
-          <span>Start: 80kg</span>
-          <span className="text-[#144500]">Goal: 70kg</span>
-        </div>
-      </section>
-
-      <div className="space-y-6">
-        <div>
-          <h4 className="text-[12px] font-extrabold text-on-surface-variant uppercase tracking-widest mb-4 ml-2 flex items-center gap-2"><Smile className="w-4 h-4"/> Profile Data</h4>
-          <div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/60">
-            {[
-              { label: 'Gender', value: biometrics.gender, icon: User, page: 'biometrics' },
-              { label: 'Height', value: biometrics.height === '170' ? '5ft 6in' : biometrics.height + 'cm', icon: Activity, page: 'biometrics' },
-              { label: 'Age', value: biometrics.age, icon: Calendar, page: 'biometrics' },
-              { label: 'Weight', value: biometrics.weight + ' kg', icon: Weight, page: 'biometrics' },
-              { label: 'Activity level', value: activity, icon: Flame, page: 'activity' },
-              { label: 'Units', value: units, icon: Settings, page: 'main' },
-              { label: 'Goals', value: goal, icon: Target, page: 'main' },
-            ].map((item, idx, arr) => (
-              <React.Fragment key={item.label}>
-                <button 
-                  onClick={() => item.page !== 'main' && setCurrentPage(item.page as SubPage)}
-                  className="w-full flex items-center justify-between p-5 hover:bg-white/60 transition-colors text-left group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 shadow-sm border border-white/40 rounded-2xl bg-white/60 flex items-center justify-center text-on-surface-variant group-hover:bg-primary-container group-hover:text-primary transition-colors">
-                      <item.icon className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <span className="block font-extrabold text-on-surface text-base">{item.label}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#3a4746] font-black text-sm">{item.value}</span>
-                    <ChevronRight className="w-5 h-5 text-surface-dim" />
-                  </div>
-                </button>
-                {idx < arr.length - 1 && <div className="h-px w-full bg-white/40" />}
-              </React.Fragment>
-            ))}
+        <div className="space-y-2">
+          <div className="flex justify-between items-baseline px-1">
+            <h3 className="text-4xl font-black text-gray-900 tracking-tighter">72.5<span className="text-xl text-gray-300 ml-1">kg</span></h3>
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Target: 70kg</span>
+          </div>
+          <div className="h-2 w-full bg-gray-50 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-[#7ED957] to-[#B5FF9C] rounded-full" style={{ width: '75%' }} />
           </div>
         </div>
+      </div>
 
-        <div>
-           <h4 className="text-[12px] font-extrabold text-on-surface-variant uppercase tracking-widest mb-4 ml-2 flex items-center gap-2"><BellRing className="w-4 h-4"/> App Services</h4>
-           <div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/60">
-              {[
-                { label: 'Reminder', icon: BellRing },
-                { label: 'Restore Purchases', icon: Sparkles },
-                { label: 'PhoneID', icon: Info },
-              ].map((item, idx, arr) => (
-                <React.Fragment key={item.label}>
-                  <button className="w-full flex items-center justify-between p-5 hover:bg-white/60 transition-colors text-left group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 shadow-sm border border-white/40 rounded-2xl bg-white/60 flex items-center justify-center text-on-surface-variant group-hover:bg-primary-container group-hover:text-primary transition-colors">
-                        <item.icon className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <span className="block font-extrabold text-on-surface text-base">{item.label}</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-surface-dim" />
-                  </button>
-                  {idx < arr.length - 1 && <div className="h-px w-full bg-white/40" />}
-                </React.Fragment>
-              ))}
-           </div>
-        </div>
-
-        <div>
-           <h4 className="text-[12px] font-extrabold text-on-surface-variant uppercase tracking-widest mb-4 ml-2 flex items-center gap-2"><CheckCircle2 className="w-4 h-4"/> Support & Legal</h4>
-           <div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/60">
-              {[
-                { label: 'Rate Us', icon: Sparkles },
-                { label: 'Feedback', icon: Mail },
-                { label: 'Terms of Use', icon: Info },
-                { label: 'Privacy Policy', icon: CheckCircle2 },
-              ].map((item, idx, arr) => (
-                <React.Fragment key={item.label}>
-                  <button className="w-full flex items-center justify-between p-5 hover:bg-white/60 transition-colors text-left group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 shadow-sm border border-white/40 rounded-2xl bg-white/60 flex items-center justify-center text-on-surface-variant group-hover:bg-primary-container group-hover:text-primary transition-colors">
-                        <item.icon className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <span className="block font-extrabold text-on-surface text-base">{item.label}</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-surface-dim" />
-                  </button>
-                  {idx < arr.length - 1 && <div className="h-px w-full bg-white/40" />}
-                </React.Fragment>
-              ))}
-           </div>
-        </div>
-
-        <div>
-          <h4 className="text-[12px] font-extrabold text-on-surface-variant uppercase tracking-widest mb-4 ml-2 flex items-center gap-2"><Settings className="w-4 h-4"/> Appearance</h4>
-          <div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/60">
-            <div className="flex items-center justify-between p-5 text-left hover:bg-white/60 transition-colors cursor-pointer" onClick={() => setSmartNotif(!smartNotif)}>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 shadow-sm border border-white/40 rounded-2xl bg-white/60 flex items-center justify-center text-on-surface-variant">
-                  <BellRing className="w-6 h-6" />
+      {/* Body Profile List */}
+      <div className="space-y-4">
+        <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-4">Body Profile</h5>
+        <div className="bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm">
+          {[
+            { label: 'Gender', icon: User, value: biometrics.gender, page: 'biometrics' },
+            { label: 'Height', icon: Activity, value: biometrics.height + ' cm', page: 'biometrics' },
+            { label: 'Age', icon: Calendar, value: biometrics.age, page: 'biometrics' },
+            { label: 'Weight', icon: Weight, value: biometrics.weight + ' kg', page: 'biometrics' },
+            { label: 'Activity level', icon: Flame, value: activity, page: 'activity' },
+            { label: 'Macro Goals', icon: PieChart, value: `${macros.carbs}C ${macros.protein}P ${macros.fat}F`, page: 'macros' },
+            { label: 'Units', icon: Settings, value: 'kg ft/in', page: 'main' },
+            { label: 'Goals', icon: Target, value: goal, page: 'main' }
+          ].map((item, i, arr) => (
+            <React.Fragment key={item.label}>
+              <button 
+                onClick={() => item.page !== 'main' && setCurrentPage(item.page as SubPage)}
+                className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-white border border-gray-50">
+                    <item.icon size={22} />
+                  </div>
+                  <span className="text-sm font-black text-gray-900">{item.label}</span>
                 </div>
-                <div>
-                  <span className="block font-extrabold text-on-surface text-base">Smart Notifications</span>
-                  <span className="text-xs font-bold text-on-surface-variant mt-0.5 block">{smartNotif ? 'Active' : 'Muted'}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-gray-400">{item.value}</span>
+                  <ChevronRight size={16} className="text-gray-200" />
                 </div>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer hover:scale-105 active:scale-95 transition-transform">
-                <input type="checkbox" className="sr-only peer" checked={smartNotif} readOnly />
-                <div className="w-14 h-8 bg-black/10 shadow-inner peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:shadow-[0_2px_4px_rgba(0,0,0,0.1)] after:border after:border-zinc-100 after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
-              </label>
+              </button>
+              {i < arr.length - 1 && <div className="h-px bg-gray-50 ml-20" />}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* System Integrity */}
+      <div className="space-y-4">
+        <h5 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em] ml-4">System Integrity</h5>
+        <div className="bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm">
+          <button className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
+            <div className="flex items-center gap-4 text-gray-900">
+              <Mail size={18} className="text-gray-400" />
+              <span className="text-sm font-black uppercase tracking-widest">Support Portal</span>
             </div>
-
-            <div className="h-px w-full bg-white/40" />
-
-            <button onClick={() => setCurrentPage('theme')} className="w-full flex items-center justify-between p-5 hover:bg-white/60 transition-colors text-left group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 shadow-sm border border-white/40 rounded-2xl bg-white/60 flex items-center justify-center text-on-surface-variant group-hover:bg-blue-500/10 group-hover:text-blue-500 transition-colors">
-                  <Sun className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="block font-extrabold text-on-surface text-base">Theme</span>
-                  <span className="text-xs font-bold text-on-surface-variant mt-0.5 block">{theme}</span>
-                </div>
-              </div>
-              <span className="text-[10px] font-extrabold text-primary px-3 py-1.5 bg-white/80 border border-white shadow-sm rounded-xl tracking-widest uppercase">{theme}</span>
-            </button>
-          </div>
+            <ChevronRight size={18} className="text-gray-300" />
+          </button>
+          <div className="h-px bg-gray-50 ml-16" />
+          <button className="w-full flex items-center justify-between p-6 hover:bg-red-50 transition-colors group">
+            <div className="flex items-center gap-4 text-red-500">
+              <LogOut size={18} className="opacity-50 group-hover:opacity-100" />
+              <span className="text-sm font-black uppercase tracking-widest">Sever Connection</span>
+            </div>
+          </button>
         </div>
       </div>
 
-      <div className="pt-4">
-        <button className="w-full p-4 bg-white/40 backdrop-blur-md border border-white/60 hover:bg-red-50 text-red-500 font-extrabold rounded-[2rem] shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-all flex items-center justify-center gap-2 hover:shadow-[0_8px_24px_rgba(239,68,68,0.15)] hover:border-red-200 active:scale-95">
-          <LogOut className="w-5 h-5" />
-          Sign Out
-        </button>
-        <p className="text-center text-zinc-400 font-bold text-[10px] mt-6 tracking-widest uppercase">fitnessbunny Version 2.4.1 (Build 890)</p>
-      </div>
-    </motion.div>
-  );
-
-  const renderEditProfile = () => (
-    <motion.div variants={containerVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
-      <div className="bg-white/60 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-[0_8px_32px_rgba(0,0,0,0.05)] space-y-6">
-        <div className="flex flex-col items-center">
-          <div className="w-24 h-24 rounded-full bg-primary-container border-4 border-white shadow-lg flex items-center justify-center relative group overflow-hidden">
-              <img 
-                src="/logo.png" 
-                alt="Fitness Bunny" 
-                className="w-16 h-16 object-contain"
-              />
-             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-white text-[10px] font-bold uppercase tracking-widest">Edit</div>
-          </div>
-          <p className="mt-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Profile Identity</p>
-        </div>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest ml-2">Display Name</label>
-            <input 
-              type="text" 
-              value={profile.name}
-              onChange={(e) => updateProfile({ name: e.target.value })}
-              className="w-full bg-white/80 border border-white/40 rounded-2xl px-5 py-4 text-sm font-bold text-[#3a4746] focus:ring-2 focus:ring-primary focus:outline-none shadow-sm"
-              placeholder="Your name"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest ml-2">Email Address</label>
-            <input 
-              type="email" 
-              value={profile.email}
-              onChange={(e) => updateProfile({ email: e.target.value })}
-              className="w-full bg-white/80 border border-white/40 rounded-2xl px-5 py-4 text-sm font-bold text-[#3a4746] focus:ring-2 focus:ring-primary focus:outline-none shadow-sm"
-              placeholder="Email"
-            />
-          </div>
-        </div>
-
-        <button onClick={() => setCurrentPage('main')} className="w-full bg-primary text-white font-extrabold py-4 rounded-2xl shadow-lg hover:shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2">
-          <CheckCircle2 className="w-5 h-5" />
-          Update Identity
-        </button>
-      </div>
+      <p className="text-center text-gray-300 font-bold text-[9px] tracking-widest uppercase py-4">Protocol v2.5.0 • Digital Sanctuary Enabled</p>
     </motion.div>
   );
 
   const renderBiometrics = () => (
     <motion.div variants={containerVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
-       <div className="bg-white/60 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-[0_8px_32px_rgba(0,0,0,0.05)] space-y-6">
-          <div className="flex items-center gap-4 p-4 bg-primary-container/20 rounded-2xl border border-primary-container/30">
-             <Info className="w-6 h-6 text-primary shrink-0" />
-             <p className="text-xs font-bold text-[#144500] leading-relaxed">Your BMI and calorie targets are calculated based on these vital stats.</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+       <div className="p-8 rounded-[3rem] bg-white border border-gray-100 shadow-sm space-y-6">
+          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest ml-2">Height (cm)</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Height (cm)</label>
               <input 
                 type="number" 
                 value={biometrics.height}
                 onChange={(e) => updateBiometrics({ height: e.target.value })}
-                className="w-full bg-white/80 border border-white/40 rounded-2xl px-5 py-4 text-sm font-bold text-[#3a4746] focus:ring-2 focus:ring-primary focus:outline-none shadow-sm"
+                className="w-full bg-gray-50 border border-transparent rounded-2xl px-6 py-4 text-lg font-black text-gray-900 focus:bg-white focus:border-[#7ED957] focus:outline-none transition-all"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest ml-2">Weight (kg)</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Weight (kg)</label>
               <input 
                 type="number" 
                 value={biometrics.weight}
                 onChange={(e) => updateBiometrics({ weight: e.target.value })}
-                className="w-full bg-white/80 border border-white/40 rounded-2xl px-5 py-4 text-sm font-bold text-[#3a4746] focus:ring-2 focus:ring-primary focus:outline-none shadow-sm"
+                className="w-full bg-gray-50 border border-transparent rounded-2xl px-6 py-4 text-lg font-black text-gray-900 focus:bg-white focus:border-[#7ED957] focus:outline-none transition-all"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-              <label className="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest ml-2">Age</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Age Progression</label>
               <input 
                 type="number" 
                 value={biometrics.age}
                 onChange={(e) => updateBiometrics({ age: e.target.value })}
-                className="w-full bg-white/80 border border-white/40 rounded-2xl px-5 py-4 text-sm font-bold text-[#3a4746] focus:ring-2 focus:ring-primary focus:outline-none shadow-sm"
+                className="w-full bg-gray-50 border border-transparent rounded-2xl px-6 py-4 text-lg font-black text-gray-900 focus:bg-white focus:border-[#7ED957] focus:outline-none transition-all"
               />
           </div>
 
-          <button onClick={() => setCurrentPage('main')} className="w-full bg-primary text-white font-extrabold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
-            <CheckCircle2 className="w-5 h-5" />
-            Save Biometrics
+          <button onClick={() => setCurrentPage('main')} className="w-full py-5 bg-gray-900 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl active:scale-95 transition-all">
+            Secure Biometrics
           </button>
        </div>
     </motion.div>
@@ -394,57 +257,30 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
 
   const renderMacros = () => (
     <motion.div variants={containerVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
-       <div className="bg-white/60 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-[0_8px_32px_rgba(0,0,0,0.05)] space-y-8">
-          <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#ff9656]/20 flex items-center justify-center text-[#ff9656] mb-3">
-              <Cherry className="w-8 h-8" />
-            </div>
-            <h3 className="font-extrabold text-xl text-[#3a4746]">Macro Split</h3>
+       <div className="p-8 rounded-[3rem] bg-white border border-gray-100 shadow-sm space-y-10">
+          <div className="space-y-8">
+            {[
+              { label: 'Carbohydrates', value: macros.carbs, color: '#FCD34D', key: 'carbs', min: 50, max: 300 },
+              { label: 'Proteins', value: macros.protein, color: '#60A5FA', key: 'protein', min: 50, max: 250 },
+              { label: 'Lipides', value: macros.fat, color: '#F97316', key: 'fat', min: 20, max: 150 }
+            ].map((m) => (
+              <div key={m.label} className="space-y-4">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{m.label}</span>
+                  <span className="text-xl font-black text-gray-900">{m.value}g</span>
+                </div>
+                <input 
+                  type="range" min={m.min} max={m.max}
+                  value={m.value}
+                  onChange={(e) => updateMacros({ [m.key]: e.target.value })}
+                  className="w-full h-1.5 bg-gray-100 rounded-full appearance-none cursor-pointer accent-gray-900" 
+                />
+              </div>
+            ))}
           </div>
 
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center px-2">
-                <span className="text-[11px] font-extrabold text-[#edc541] uppercase tracking-widest">Carbohydrates</span>
-                <span className="text-sm font-bold text-[#3a4746]">{macros.carbs}g</span>
-              </div>
-              <input 
-                type="range" min="50" max="300"
-                value={macros.carbs}
-                onChange={(e) => updateMacros({ carbs: e.target.value })}
-                className="w-full h-2 bg-zinc-100 rounded-full appearance-none cursor-pointer accent-[#edc541]" 
-              />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center px-2">
-                <span className="text-[11px] font-extrabold text-[#64a6ed] uppercase tracking-widest">Protein</span>
-                <span className="text-sm font-bold text-[#3a4746]">{macros.protein}g</span>
-              </div>
-              <input 
-                type="range" min="50" max="250"
-                value={macros.protein}
-                onChange={(e) => updateMacros({ protein: e.target.value })}
-                className="w-full h-2 bg-zinc-100 rounded-full appearance-none cursor-pointer accent-[#64a6ed]" 
-              />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center px-2">
-                <span className="text-[11px] font-extrabold text-[#f9aa42] uppercase tracking-widest">Healthy Fats</span>
-                <span className="text-sm font-bold text-[#3a4746]">{macros.fat}g</span>
-              </div>
-              <input 
-                type="range" min="20" max="150"
-                value={macros.fat}
-                onChange={(e) => updateMacros({ fat: e.target.value })}
-                className="w-full h-2 bg-zinc-100 rounded-full appearance-none cursor-pointer accent-[#f9aa42]" 
-              />
-            </div>
-          </div>
-
-          <button onClick={() => setCurrentPage('main')} className="w-full bg-primary text-white font-extrabold py-4 rounded-2xl shadow-lg transition-all active:scale-95">
-            Optimize Nutrition
+          <button onClick={() => setCurrentPage('main')} className="w-full py-5 bg-[#7ED957] text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-lg active:scale-95 transition-all">
+            Lock Targets
           </button>
        </div>
     </motion.div>
@@ -459,24 +295,22 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
              setActivity(level);
              setCurrentPage('main');
            }}
-           className={`w-full p-6 text-left rounded-[2rem] border transition-all flex items-center justify-between group ${activity === level ? 'bg-primary border-primary shadow-lg scale-102' : 'bg-white/60 border-white hover:bg-white'}`}
+           className={`w-full p-6 text-left rounded-[2rem] border transition-all flex items-center justify-between group ${activity === level ? 'bg-gray-900 border-gray-900 shadow-xl scale-[1.02]' : 'bg-white border-gray-100 hover:bg-gray-50'}`}
           >
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${activity === level ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary group-hover:bg-primary/20'}`}>
-                <Activity className="w-6 h-6" />
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${activity === level ? 'bg-white/10 text-white' : 'bg-gray-50 text-gray-400 group-hover:bg-white'}`}>
+                <Activity size={22} />
               </div>
               <div>
-                <span className={`block font-extrabold text-lg ${activity === level ? 'text-white' : 'text-[#3a4746]'}`}>{level}</span>
-                <p className={`text-xs font-bold leading-tight ${activity === level ? 'text-white/80' : 'text-[#89979b]'}`}>
-                  {level === 'Sedentary' && 'Desk job, little to no exercise.'}
-                  {level === 'Lightly Active' && 'Light exercise 1-3 days/week.'}
-                  {level === 'Active' && 'Moderate exercise 3-5 days/week.'}
-                  {level === 'Very Active' && 'Hard exercise 6-7 days/week.'}
-                  {level === 'Athlete' && 'Professional level workouts daily.'}
+                <span className={`block font-black text-lg ${activity === level ? 'text-white' : 'text-gray-900'}`}>{level}</span>
+                <p className={`text-xs font-bold leading-tight ${activity === level ? 'text-white/60' : 'text-gray-400'}`}>
+                  {level === 'Sedentary' && 'Minimal activity protocol.'}
+                  {level === 'Active' && 'Moderate kinetic frequency.'}
+                  {level === 'Athlete' && 'Peak physical performance level.'}
                 </p>
               </div>
             </div>
-            {activity === level && <CheckCircle2 className="w-6 h-6 text-white" fill="currentColor" />}
+            {activity === level && <CheckCircle2 size={24} className="text-[#7ED957]" fill="currentColor" />}
          </button>
        ))}
     </motion.div>
@@ -484,46 +318,34 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
 
   const renderTheme = () => (
     <motion.div variants={containerVariants} initial="initial" animate="animate" exit="exit" className="space-y-4">
-       {['Light', 'Dark', 'System'].map((t) => (
+       {['Light', 'Dark'].map((t) => (
          <button 
            key={t}
            onClick={() => {
              setTheme(t);
              setCurrentPage('main');
            }}
-           className={`w-full p-6 text-left rounded-[2rem] border transition-all flex items-center justify-between group ${theme === t ? 'bg-[#309af0] border-[#309af0] shadow-lg scale-102' : 'bg-white/60 border-white hover:bg-white'}`}
+           className={`w-full p-8 text-left rounded-[2.5rem] border transition-all flex items-center justify-between group ${theme === t ? 'bg-gray-900 border-gray-900 shadow-xl' : 'bg-white border-gray-100 hover:bg-gray-50'}`}
           >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${theme === t ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20'}`}>
-                <Sun className="w-6 h-6" />
+            <div className="flex items-center gap-6">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${theme === t ? 'bg-white/10 text-white' : 'bg-gray-50 text-gray-400'}`}>
+                <Sun size={28} />
               </div>
-              <span className={`block font-extrabold text-lg ${theme === t ? 'text-white' : 'text-[#3a4746]'}`}>{t} Mode</span>
+              <span className={`block font-black text-2xl ${theme === t ? 'text-white' : 'text-gray-900'}`}>{t} Mode</span>
             </div>
-            {theme === t && <CheckCircle2 className="w-6 h-6 text-white" fill="currentColor" />}
+            {theme === t && <CheckCircle2 size={28} className="text-[#7ED957]" fill="currentColor" />}
          </button>
        ))}
     </motion.div>
   );
 
-  const getPageTitle = () => {
-    switch(currentPage) {
-      case 'edit_profile': return 'Edit Identity';
-      case 'biometrics': return 'Vital Stats';
-      case 'macros': return 'Nutrition Targets';
-      case 'activity': return 'Energy Level';
-      case 'theme': return 'Appearance';
-      default: return 'Settings';
-    }
-  };
-
   return (
-    <div className="h-full overflow-y-auto">
-      {renderHeader(getPageTitle(), currentPage !== 'main')}
+    <div className="h-full bg-[#F9FAFB] font-jakarta">
+      {renderHeader(currentPage === 'main' ? 'Command' : currentPage, currentPage !== 'main')}
 
-      <main className="pt-40 px-6 max-w-2xl mx-auto pb-32">
+      <main className="pt-36 px-6 max-w-xl mx-auto pb-40 overflow-y-auto h-full scrollbar-hide">
         <AnimatePresence mode="wait">
           {currentPage === 'main' && renderMainSettings()}
-          {currentPage === 'edit_profile' && renderEditProfile()}
           {currentPage === 'biometrics' && renderBiometrics()}
           {currentPage === 'macros' && renderMacros()}
           {currentPage === 'activity' && renderActivity()}
@@ -533,4 +355,3 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
     </div>
   );
 }
-

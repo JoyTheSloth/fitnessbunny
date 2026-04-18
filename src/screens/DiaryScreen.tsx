@@ -156,18 +156,33 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#a4afb3] shadow-sm group-hover:text-[#8de15c] transition-colors">
                   {getMealIcon(meal.name)}
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-black text-[#3a4746] text-sm">{meal.name}</h4>
-                    <FavoriteButton isFavorite={favorites[meal.id]} onClick={(e) => { e.stopPropagation(); setFavorites(p => ({...p, [meal.id]: !p[meal.id]})); }} />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-black text-[#3a4746] text-sm">{meal.name}</h4>
+                      <FavoriteButton isFavorite={favorites[meal.id]} onClick={(e) => { e.stopPropagation(); setFavorites(p => ({...p, [meal.id]: !p[meal.id]})); }} />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      <div className="flex items-center gap-1 bg-white/50 px-1.5 py-0.5 rounded-md border border-gray-100">
+                         <span className="text-[8px] font-black text-[#309af0] uppercase">P</span>
+                         <span className="text-[9px] font-black text-[#3a4746]">{meal.protein}g</span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-white/50 px-1.5 py-0.5 rounded-md border border-gray-100">
+                         <span className="text-[8px] font-black text-[#ffa024] uppercase">C</span>
+                         <span className="text-[9px] font-black text-[#3a4746]">{meal.carbs}g</span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-white/50 px-1.5 py-0.5 rounded-md border border-gray-100">
+                         <span className="text-[8px] font-black text-[#ffa024] uppercase">F</span>
+                         <span className="text-[9px] font-black text-[#3a4746]">{meal.fat}g</span>
+                      </div>
+                      {meal.fiber !== undefined && (
+                        <div className="flex items-center gap-1 bg-[#8de15c]/10 px-1.5 py-0.5 rounded-md border border-[#8de15c]/20">
+                           <Leaf className="w-2.5 h-2.5 text-[#8de15c]" />
+                           <span className="text-[9px] font-black text-[#3a4746]">{meal.fiber}g</span>
+                        </div>
+                      )}
+                      <p className="text-[#b9c3c1] text-[9px] font-black ml-1 uppercase">{meal.time}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-[#89979b] text-[10px] font-black uppercase tracking-tight">{meal.time}</p>
-                    <button onClick={(e) => { e.stopPropagation(); deleteMeal(meal.id); }} className="p-1 rounded-md text-[#a4afb3] hover:text-red-500 hover:bg-red-50 transition-all ml-1 opacity-0 group-hover:opacity-100">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
               </div>
               <div className="flex items-center gap-3">
                  <div className="text-right">
