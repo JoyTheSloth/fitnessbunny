@@ -1,5 +1,5 @@
 import "./globals.css";
-import { UserProvider } from "../src/context/UserContext";
+import { Providers } from "../src/components/Providers";
 
 export const metadata = {
   title: "Fitness Bunny",
@@ -14,9 +14,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning>
-        <UserProvider>
+        <Providers>
           {children}
-        </UserProvider>
+        </Providers>
       </body>
     </html>
   );
