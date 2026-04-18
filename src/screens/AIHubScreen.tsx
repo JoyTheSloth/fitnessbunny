@@ -26,132 +26,102 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
   ];
 
   return (
-    <div className="h-full bg-gradient-to-b from-[#f0f9f1] to-white px-6 pt-20 flex flex-col items-center overflow-y-auto">
-      {/* Bunny Icon/Logo */}
-      <motion.div 
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="w-24 h-24 bg-[#8de15c] rounded-[2.2rem] border-[4px] border-white flex items-center justify-center mb-6 shadow-2xl shadow-[#8de15c]/20"
-      >
-        <div className="text-white font-black text-center text-xs leading-tight tracking-tight">
-          FITNESS<br/>BUNNY
-        </div>
-      </motion.div>
+    <div className="h-full bg-[#f8fafb] flex flex-col relative overflow-hidden">
+      {/* Dynamic Background Hint */}
+      <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-[#8de15c]/10 to-transparent pointer-events-none" />
 
-      {/* Greeting */}
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-center mb-10 max-w-[280px]"
-      >
-        <h1 className="text-4xl font-black text-[#3a4746] mb-2 tracking-tight">{greeting}!</h1>
-        <p className="text-[#89979b] font-bold text-sm leading-relaxed">Ready to track? Tell me what's on your plate today. ✨</p>
-      </motion.div>
-
-      {/* AI Search Card */}
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="w-full bg-white rounded-[2.8rem] p-8 shadow-[0_40px_80px_rgba(141,225,92,0.1)] mb-8 border border-white relative overflow-hidden group"
-      >
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#8de15c]/5 to-transparent rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-700" />
-        
-        <textarea 
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="What did you eat today?"
-          className="w-full h-32 text-2xl font-bold text-[#3a4746] placeholder-[#d1d9db] resize-none outline-none leading-tight bg-transparent relative z-10"
-        />
-        
-        <div className="flex justify-between items-center mt-4 relative z-10">
-          <div className="flex gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#8de15c] animate-pulse" />
-            <span className="text-[10px] font-black text-[#8de15c] uppercase tracking-widest">AI Hub Online</span>
+      {/* Compact Header Area */}
+      <header className="px-6 pt-10 pb-4 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#8de15c] rounded-xl flex items-center justify-center shadow-lg shadow-[#8de15c]/20">
+             <div className="text-white text-[8px] font-black leading-tight text-center">FB</div>
           </div>
-          <div className="flex gap-3">
-            <motion.button whileTap={{ scale: 0.9 }} className="w-12 h-12 bg-[#f8fafb] rounded-2xl flex items-center justify-center text-[#8de15c] hover:bg-[#8de15c] hover:text-white transition-all shadow-sm">
-              <Mic className="w-6 h-6" />
-            </motion.button>
-            <motion.button 
-              whileTap={{ scale: 0.9 }}
-              onClick={onNavigateToScan}
-              className="w-12 h-12 bg-[#8de15c] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#8de15c]/30 hover:brightness-105 transition-all"
-            >
-              <Camera className="w-6 h-6" />
-            </motion.button>
-          </div>
+          <h1 className="text-xl font-black text-[#3a4746] tracking-tight">{greeting}!</h1>
         </div>
-      </motion.div>
+        <div className="flex items-center gap-2">
+           <div className="px-3 py-1 bg-white/50 backdrop-blur-md rounded-full border border-white/80 flex items-center gap-2">
+              <Sparkles className="w-3 h-3 text-[#8de15c]" fill="currentColor" />
+              <span className="text-[10px] font-black text-[#3a4746] uppercase">AI Hub</span>
+           </div>
+        </div>
+      </header>
 
-      {/* Suggestions Chips */}
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="flex flex-wrap gap-2.5 justify-center mb-10 px-2"
-      >
-        {suggestions.map((s, i) => (
-          <motion.button 
-            key={i}
-            whileTap={{ scale: 0.95 }}
-            className="px-5 py-3 bg-white border border-gray-100/80 rounded-2xl text-[13px] font-black text-[#3a4746] shadow-sm flex items-center gap-2 hover:border-[#8de15c]/30 hover:shadow-md transition-all group"
-          >
-            <span className="text-lg group-hover:scale-125 transition-transform">{s.icon}</span>
-            {s.text}
-          </motion.button>
-        ))}
-      </motion.div>
-
-      {/* Feature Cards Loop */}
-      <div className="w-full space-y-4 mb-10">
+      <div className="flex-1 overflow-y-auto px-6 pb-32 space-y-5">
+        {/* Main Practical Tracking Box */}
         <motion.div 
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="w-full bg-gradient-to-r from-[#3a4746] to-[#4a5a59] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl"
+          initial={{ y: 15, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="bg-white rounded-3xl p-5 shadow-sm border border-white relative group"
         >
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
-                <Sparkles className="w-5 h-5 text-[#8de15c]" />
-              </div>
-              <h3 className="text-lg font-black tracking-tight">Daily Smart Tip</h3>
+          <textarea 
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="What's for breakfast? (e.g. 2 eggs & coffee)"
+            className="w-full h-24 text-lg font-bold text-[#3a4746] placeholder-[#b9c3c1] resize-none outline-none leading-relaxed bg-transparent"
+          />
+          
+          <div className="flex items-center justify-between pt-3 border-t border-gray-50/50 mt-1">
+            <div className="flex gap-2">
+              <button className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-[#89979b] hover:text-[#8de15c] transition-colors"><Mic className="w-5 h-5" /></button>
+              <button onClick={onNavigateToScan} className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-[#89979b] hover:text-[#8de15c] transition-colors"><Camera className="w-5 h-5" /></button>
             </div>
-            <p className="text-white/80 text-sm leading-relaxed font-bold">
-              "Drinking a glass of lukewarm water with lemon right now can jumpstart your metabolism by <span className="text-[#8de15c]">15%</span> for the next hour!"
-            </p>
+            
+            <motion.button 
+              whileTap={{ scale: 0.95 }}
+              className="bg-[#8de15c] text-white px-6 py-2.5 rounded-xl font-black text-sm flex items-center gap-2 shadow-lg shadow-[#8de15c]/20 hover:brightness-105"
+            >
+              Analyze & Log <ArrowRight className="w-4 h-4" />
+            </motion.button>
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="w-full bg-[#eef8eb] rounded-[2.5rem] p-8 border border-white shadow-sm flex items-center justify-between"
-        >
-          <div className="flex items-center gap-5">
-             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#8de15c] shadow-sm">
-               <span className="text-2xl">🔥</span>
-             </div>
+        {/* Practical Suggestion Chips */}
+        <div className="flex flex-wrap gap-2">
+           {suggestions.map((s, i) => (
+             <button key={i} className="px-4 py-2 bg-white border border-gray-100 rounded-xl text-[12px] font-bold text-[#3a4746] shadow-xs flex items-center gap-2 active:bg-gray-50 transition-all">
+                <span>{s.icon}</span> {s.text}
+             </button>
+           ))}
+        </div>
+
+        {/* Feature Cards Loop - More Practical & Slim */}
+        <div className="grid grid-cols-1 gap-4">
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="w-full bg-[#3a4746] rounded-3xl p-6 text-white relative flex items-center justify-between"
+          >
+            <div className="max-w-[70%]">
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb className="w-4 h-4 text-[#8de15c]" />
+                <span className="text-[10px] font-black uppercase text-[#8de15c] tracking-widest">Macro Tip</span>
+              </div>
+              <p className="text-xs font-bold text-white/80 leading-relaxed">Boost metabolism by 15% with lukewarm lemon water now!</p>
+            </div>
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center"><ChevronRight className="w-5 h-5" /></div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="w-full bg-[#fef2e8] rounded-3xl p-6 border border-[#fce4d1]/30 flex items-center gap-5"
+          >
+             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#ffa024] shadow-sm"><span className="font-black text-lg">🔥</span></div>
              <div>
-               <h4 className="font-black text-[#3a4746] text-lg">Morning Streak</h4>
-               <p className="text-[#89979b] font-bold text-xs uppercase tracking-widest">5 Days Logged</p>
+               <h4 className="font-black text-[#3a4746] text-sm">Morning Streak</h4>
+               <p className="text-[10px] font-black text-[#f1904a] uppercase tracking-widest leading-none">5 Days Active</p>
              </div>
-          </div>
-          <ChevronRight className="w-6 h-6 text-[#8de15c]" />
-        </motion.div>
-      </div>
+          </motion.div>
+        </div>
 
-      {/* Action Footer */}
-      <motion.button 
-        whileTap={{ scale: 0.98 }}
-        className="w-full bg-white border-2 border-dashed border-gray-100 rounded-[2rem] py-6 text-[#b9c3c1] font-black text-xs uppercase tracking-[0.2em] mb-12"
-      >
-        + Explore More Insights
-      </motion.button>
+        {/* New Utility: Quick Access Profile */}
+        <div className="flex items-center justify-between px-2 pt-4 opacity-60">
+           <button className="text-[10px] font-black uppercase tracking-[0.2em] text-[#b9c3c1]">History Logs</button>
+           <button className="text-[10px] font-black uppercase tracking-[0.2em] text-[#b9c3c1]">Daily Plan</button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -42,7 +42,6 @@ export default function App() {
       case 'dashboard':
         return <InsightsScreen onOpenPremium={() => setShowPremium(true)} />;
 
-      // Center bunny tab → renders the new AI Hub Screen (from your screenshot)
       case 'add':
         return (
           <AIHubScreen
@@ -70,14 +69,16 @@ export default function App() {
 
   return (
     <UserProvider>
-      <div className="font-sans text-on-surface h-screen relative overflow-hidden bg-[#eff3f4]">
+      <div className="font-sans text-on-surface h-screen relative overflow-hidden bg-white">
         {/* Main screen — rendered behind overlays */}
-        <div className="relative z-10 h-full pb-20">
+        <div className="absolute inset-0 z-10">
           {renderScreen()}
         </div>
 
-        {/* Bottom nav — always visible */}
-        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        {/* Bottom nav — fixed on top */}
+        <div className="fixed bottom-0 left-0 right-0 z-[100]">
+          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
 
         {/* Overlays — triggered by in-page buttons only */}
         <AnimatePresence>
