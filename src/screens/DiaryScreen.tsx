@@ -44,7 +44,7 @@ const FavoriteButton = ({ isFavorite, onClick }: { isFavorite: boolean; onClick:
 
 
 export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan }: DiaryScreenProps) {
-  const { biometrics, meals, exercises, deleteMeal, addExercise, updateBiometrics, dynamicTargets, addWeightLog, weightLogs, goal: userGoal, waterLogs, updateWater } = useUser();
+  const { biometrics, meals, exercises, deleteMeal, addExercise, updateBiometrics, dynamicTargets, addWeightLog, weightLogs, goal: userGoal, waterLogs, updateWater, macros, updateMacros } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
   
@@ -52,6 +52,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [showWeightModal, setShowWeightModal] = useState(false);
   const [showExerciseModal, setShowExerciseModal] = useState(false);
+  const [showMacroModal, setShowMacroModal] = useState(false);
   
   // Form States
   const [newWeight, setNewWeight] = useState(biometrics.weight);
@@ -59,6 +60,12 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [exForm, setExForm] = useState({ name: '', duration: '' });
   const [isCalculatingEx, setIsCalculatingEx] = useState(false);
+  const [macroForm, setMacroForm] = useState({ 
+    carbs: macros.carbs || dynamicTargets.carbs.toString(), 
+    protein: macros.protein || dynamicTargets.protein.toString(), 
+    fat: macros.fat || dynamicTargets.fat.toString(), 
+    fiber: macros.fiber || '25' 
+  });
 
   // Date formatted for filtering
   const selectedDateStr = currentDate.toISOString().split('T')[0];
@@ -113,7 +120,20 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
       }, selectedDateStr);
       setExForm({ name: '', duration: '' });
       setShowExerciseModal(false);
-    } catch (e) { setShowExerciseModal(false); } finally { setIsCalculatingEx(false); }
+    } catch (e) { setShowExerciseModal(false);    } finally {
+      setIsCalculatingEx(false);
+    }
+  };
+
+  const handleMacroSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateMacros({
+      carbs: macroForm.carbs,
+      protein: macroForm.protein,
+      fat: macroForm.fat,
+      fiber: macroForm.fiber
+    });
+    setShowMacroModal(false);
   };
 
   const formatDisplayDate = (date: Date) => {
@@ -231,8 +251,8 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
                   <h2 className="text-2xl font-black text-[#3a4746] tracking-tight">Calories</h2>
                   <p className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-[0.2em] mt-0.5">Summary Profile</p>
                 </div>
-                <motion.div whileTap={{ scale: 0.95 }} onClick={onOpenPremium} className="bg-[#fef2e8] px-3 py-1.5 rounded-xl flex items-center gap-2 cursor-pointer border border-[#fce4d1]/30">
-                  <span className="text-[#f1904a] text-[10px] font-black uppercase">{userGoal}</span>
+                <motion.div whileTap={{ scale: 0.95 }} onClick={() => setShowMacroModal(true)} className="bg-[#fef2e8] px-3 py-1.5 rounded-xl flex items-center gap-2 cursor-pointer border border-[#fce4d1]/30">
+                  <span className="text-[#f1904a] text-[10px] font-black uppercase">{userGoal || 'Macros'}</span>
                   <ChevronRightSm className="w-3 h-3 text-[#f1904a]" />
                 </motion.div>
               </div>
@@ -269,10 +289,10 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
               <div className="bg-[#f8fafb]/60 border border-[#f1f4f5] rounded-[2rem] p-5">
                 <div className="grid grid-cols-2 gap-x-8 gap-y-5">
                    {[
-                     { l: 'Carbs', v: totalCarbs, t: dynamicTargets.carbs, col: 'bg-[#ffa024]', dot: '#ffa024' },
-                     { l: 'Protein', v: totalProtein, t: dynamicTargets.protein, col: 'bg-[#309af0]', dot: '#309af0' },
-                     { l: 'Fat', v: totalFat, t: dynamicTargets.fat, col: 'bg-[#ff9d2d]', dot: '#ff9d2d' },
-                     { l: 'Fiber', v: 2, t: 25, col: 'bg-[#8de15c]', dot: '#8de15c' }
+                     { l: 'Carbs', v: totalCarbs, t: parseFloat(macros.carbs || dynamicTargets.carbs.toString()) || 250, col: 'bg-[#ffa024]', dot: '#ffa024' },
+                     { l: 'Protein', v: totalProtein, t: parseFloat(macros.protein || dynamicTargets.protein.toString()) || 125, col: 'bg-[#309af0]', dot: '#309af0' },
+                     { l: 'Fat', v: totalFat, t: parseFloat(macros.fat || dynamicTargets.fat.toString()) || 67, col: 'bg-[#ff9d2d]', dot: '#ff9d2d' },
+                     { l: 'Fiber', v: 2, t: parseFloat(macros.fiber || '25'), col: 'bg-[#8de15c]', dot: '#8de15c' }
                    ].map((m, i) => (
                      <div key={i} className="space-y-2">
                         <div className="flex justify-between items-center">
@@ -295,8 +315,30 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
             <div onClick={() => setIsAssistantOpen(true)} className="bg-[#f7fff9] rounded-[2rem] p-6 shadow-sm border border-white/80 cursor-pointer active:scale-[0.99] transition-all">
               <div className="flex justify-between items-center mb-6 px-1"><h3 className="text-xl font-black text-[#3a4746] tracking-tight">Daily Report</h3><div className="bg-[#8de15c]/10 text-[#8de15c] px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest">Ask Bunny</div></div>
               <div className="space-y-4">
-                {[{ l: 'Nutrition', v: 'Excellent', i: Utensils, c: 'text-[#8de15c]', bg: 'bg-[#8de15c]/5' }, { l: 'Activity', v: 'On track', i: Activity, c: 'text-[#309af0]', bg: 'bg-[#309af0]/5' }, { l: 'Mood', v: 'Energetic', i: Sparkles, c: 'text-[#ffa024]', bg: 'bg-[#ffa024]/5' }].map((it, i) => (
-                  <div key={i} className="flex items-center justify-between"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-xl ${it.bg} flex items-center justify-center ${it.c} border border-white shadow-xs`}><it.i className="w-5 h-5" /></div><span className="font-black text-[#3a4746] text-sm">{it.l}</span></div><div className="flex items-center gap-2"><span className="text-[10px] font-black text-[#b9c3c1] uppercase tracking-wider">{it.v}</span><ChevronRightSm className="w-3 h-3 text-gray-200" /></div></div>
+                {[
+                  {
+                    l: 'Nutrition',
+                    v: totalFoodCals === 0 ? 'Log meals' : (remainingCals < -100 ? 'Over Goal' : (remainingCals > 300 ? 'Under Goal' : 'Excellent')),
+                    i: Utensils,
+                    c: totalFoodCals === 0 ? 'text-[#b9c3c1]' : (remainingCals < -100 ? 'text-[#ef4444]' : (remainingCals > 300 ? 'text-[#ffa024]' : 'text-[#8de15c]')),
+                    bg: 'bg-white'
+                  },
+                  {
+                    l: 'Activity',
+                    v: totalExerciseCals === 0 ? 'Resting' : (totalExerciseCals > 300 ? 'Active' : 'Light'),
+                    i: Activity,
+                    c: totalExerciseCals === 0 ? 'text-[#b9c3c1]' : (totalExerciseCals > 300 ? 'text-[#8de15c]' : 'text-[#309af0]'),
+                    bg: 'bg-white'
+                  },
+                  {
+                    l: 'Mood',
+                    v: totalFoodCals === 0 ? 'Neutral' : (totalFoodCals < 800 ? 'Low Energy' : (remainingCals < -200 ? 'Stuffed' : 'Energetic')),
+                    i: Sparkles,
+                    c: totalFoodCals === 0 ? 'text-[#b9c3c1]' : (totalFoodCals < 800 ? 'text-[#309af0]' : (remainingCals < -200 ? 'text-[#ef4444]' : 'text-[#ffa024]')),
+                    bg: 'bg-white'
+                  }
+                ].map((it, i) => (
+                  <div key={i} className="flex items-center justify-between"><div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-xl ${it.bg} flex items-center justify-center ${it.c} border border-[#f1f4f5] shadow-xs`}><it.i className="w-5 h-5" /></div><span className="font-black text-[#3a4746] text-sm">{it.l}</span></div><div className="flex items-center gap-2"><span className={`text-[10px] font-black ${it.c} uppercase tracking-wider`}>{it.v}</span><ChevronRightSm className="w-3 h-3 text-gray-200" /></div></div>
                 ))}
               </div>
             </div>
@@ -435,6 +477,34 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
               <button disabled={isCalculatingEx} type="submit" className="w-full bg-[#8de15c] py-6 rounded-3xl text-white font-black text-xl shadow-xl shadow-[#8de15c]/30 flex items-center justify-center gap-4 active:scale-95 transition-all">
                 {isCalculatingEx ? <Loader2 className="w-7 h-7 animate-spin" /> : <><Flame className="w-6 h-6" /> Calculate & Add</>}
               </button>
+            </motion.form>
+          </div>
+        )}
+
+        {showMacroModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowMacroModal(false)} className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+            <motion.form onSubmit={handleMacroSubmit} initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-sm bg-white rounded-[3.5rem] p-10 shadow-2xl flex flex-col border border-white">
+              <div className="flex items-center gap-4 mb-8">
+                 <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 shadow-sm border border-white"><Trophy className="w-8 h-8" /></div>
+                 <div><h3 className="text-2xl font-black text-[#3a4746] tracking-tight">Macro Goals</h3><p className="text-[10px] text-[#b9c3c1] font-black uppercase tracking-widest mt-1">Customize Targets</p></div>
+              </div>
+              <div className="space-y-4 mb-8">
+                {['carbs', 'protein', 'fat', 'fiber'].map(macroType => (
+                  <div key={macroType} className="flex items-center justify-between bg-[#f8fafb] border border-[#f1f4f5] rounded-2xl px-5 py-4">
+                    <label className="text-[11px] font-black text-[#3a4746] uppercase tracking-[0.2em]">{macroType}</label>
+                    <div className="flex items-center gap-2">
+                       <input type="number" 
+                         value={(macroForm as any)[macroType]} 
+                         onChange={(e) => setMacroForm({...macroForm, [macroType]: e.target.value})} 
+                         className="w-16 bg-transparent text-right font-black text-lg outline-none text-[#3a4746]" 
+                       />
+                       <span className="text-[10px] font-black text-[#b9c3c1]">g</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button type="submit" className="w-full bg-[#8de15c] py-5 rounded-3xl text-white font-black text-xl shadow-xl shadow-[#8de15c]/30 active:scale-95 transition-all">Save Goals</button>
             </motion.form>
           </div>
         )}

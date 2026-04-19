@@ -20,6 +20,7 @@ export interface Macros {
   carbs: string;
   protein: string;
   fat: string;
+  fiber: string;
 }
 
 export interface MealEntry {
@@ -84,7 +85,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { data: session, status } = useSession();
   const [profile, setProfile] = useLocalStorage<UserProfile>('fb_profile', { name: '', email: '' });
   const [biometrics, setBiometrics] = useLocalStorage<Biometrics>('fb_biometrics', { height: '', weight: '', age: '', gender: '' });
-  const [macros, setMacros] = useLocalStorage<Macros>('fb_macros', { carbs: '', protein: '', fat: '' });
+  const [macros, setMacros] = useLocalStorage<Macros>('fb_macros', { carbs: '', protein: '', fat: '', fiber: '' });
   const [goal, setGoal] = useLocalStorage<string>('fb_goal', '');
   const [meals, setMeals] = useLocalStorage<MealEntry[]>('fb_meals', []);
   const [exercises, setExercises] = useLocalStorage<ExerciseEntry[]>('fb_exercises', []);

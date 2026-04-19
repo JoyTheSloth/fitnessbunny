@@ -36,11 +36,15 @@ export default function AIAssistant({ isOpen, onClose }: { isOpen: boolean; onCl
     }
   }, [isOpen]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (overrideText?: string) => {
+    const textToSend = typeof overrideText === 'string' ? overrideText : input;
+    if (!textToSend.trim() || isLoading) return;
 
-    const userMsg = input.trim();
-    setInput("");
+    const userMsg = textToSend.trim();
+    if (typeof overrideText !== 'string') {
+      setInput("");
+    }
+    
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setIsLoading(true);
 
@@ -63,7 +67,7 @@ export default function AIAssistant({ isOpen, onClose }: { isOpen: boolean; onCl
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY}`
         },
         body: JSON.stringify({
           model: "llama-3.3-70b-versatile",
@@ -194,7 +198,7 @@ export default function AIAssistant({ isOpen, onClose }: { isOpen: boolean; onCl
                ].map((action, i) => (
                  <button 
                    key={i}
-                   onClick={() => { setInput(action.label); }}
+                   onClick={() => handleSend(action.label)}
                    className="whitespace-nowrap px-4 py-2 bg-white/60 backdrop-blur-md border border-white rounded-full text-[11px] font-black text-[#3a4746] flex items-center gap-1.5 hover:bg-white shadow-sm transition-all shadow-primary/5"
                  >
                    <action.icon className="w-3.5 h-3.5 text-primary" />
