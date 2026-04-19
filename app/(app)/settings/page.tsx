@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import ProfileScreen from '../../src/screens/ProfileScreen';
-import PremiumScreen from '../../src/screens/PremiumScreen';
+import ProfileScreen from '@/src/screens/ProfileScreen';
+import PremiumScreen from '@/src/screens/PremiumScreen';
 import { AnimatePresence } from 'motion/react';
 
 export default function SettingsPage() {

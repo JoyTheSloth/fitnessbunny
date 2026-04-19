@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import MealsScreen from '../../src/screens/MealsScreen';
-import PremiumScreen from '../../src/screens/PremiumScreen';
+import MealsScreen from '@/src/screens/MealsScreen';
+import PremiumScreen from '@/src/screens/PremiumScreen';
 import { AnimatePresence } from 'motion/react';
 
 export default function MealsPage() {

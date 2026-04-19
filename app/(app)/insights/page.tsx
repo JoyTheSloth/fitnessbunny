@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import InsightsScreen from '../../src/screens/InsightsScreen';
-import PremiumScreen from '../../src/screens/PremiumScreen';
+import InsightsScreen from '@/src/screens/InsightsScreen';
+import PremiumScreen from '@/src/screens/PremiumScreen';
 import { AnimatePresence } from 'motion/react';
 
 export default function InsightsPage() {

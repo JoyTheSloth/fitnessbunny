@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Providers } from "../src/components/Providers";
+import { Providers } from "@/src/components/Providers";
 
 export const metadata = {
   title: "Fitness Bunny",

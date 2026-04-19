@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from 'react';
-import DiaryScreen from '../../src/screens/DiaryScreen';
-import AddScreen from '../../src/screens/AddScreen';
-import ScanScreen from '../../src/screens/ScanScreen';
-import PremiumScreen from '../../src/screens/PremiumScreen';
+import DiaryScreen from '@/src/screens/DiaryScreen';
+import AddScreen from '@/src/screens/AddScreen';
+import ScanScreen from '@/src/screens/ScanScreen';
+import PremiumScreen from '@/src/screens/PremiumScreen';
 import { AnimatePresence } from 'motion/react';
 
 export default function DiaryPage() {

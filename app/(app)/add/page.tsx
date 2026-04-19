@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import AIHubScreen from '../../src/screens/AIHubScreen';
-import ScanScreen from '../../src/screens/ScanScreen';
-import AddScreen from '../../src/screens/AddScreen';
+import AIHubScreen from '@/src/screens/AIHubScreen';
+import ScanScreen from '@/src/screens/ScanScreen';
+import AddScreen from '@/src/screens/AddScreen';
 
 export default function AddPage() {
   const [showScan, setShowScan] = useState(false);

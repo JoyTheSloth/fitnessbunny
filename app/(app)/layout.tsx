@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import BottomNav from '../../src/components/BottomNav';
+import BottomNav from '@/src/components/BottomNav';
 
 export default function AppLayout({
   children,
