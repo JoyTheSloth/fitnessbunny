@@ -5,6 +5,11 @@ export const metadata = {
   title: "Fitness Bunny",
   description: "Your premium fitness diary",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+    shortcut: "/logo.png",
+  },
 };
 
 export const viewport = {
