@@ -513,7 +513,7 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
               </div>
             )}
           </AnimatePresence>
-
+        </div>
 
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
