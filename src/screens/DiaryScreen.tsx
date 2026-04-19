@@ -197,7 +197,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
     <div className="relative h-full overflow-hidden">
       {/* Diary Sanctuary Background */}
       <Image 
-        src="/diary_bg.png" 
+        src="/10.png" 
         alt="Diary Background" 
         fill
         priority
