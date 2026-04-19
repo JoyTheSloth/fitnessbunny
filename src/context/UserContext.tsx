@@ -149,7 +149,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const normalizeBiometrics = (updates: Partial<Biometrics>): Biometrics => {
     const next = { ...biometrics, ...updates };
-    const allowedGenders = ['Male', 'Female', 'Other'];
+    const allowedGenders = ['Male', 'Female'];
 
     return {
       height: next.height.trim(),

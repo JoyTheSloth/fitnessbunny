@@ -32,9 +32,15 @@ type SubPage = 'main' | 'biometrics' | 'macros' | 'activity' | 'theme';
 export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () => void }) {
   const { profile, biometrics, macros, goal, updateBiometrics, updateMacros } = useUser();
   const [currentPage, setCurrentPage] = useState<SubPage>('main');
-  const [aiCoach, setAiCoach] = useState(true);
-  const [smartNotif, setSmartNotif] = useState(true);
   const [genderModalOpen, setGenderModalOpen] = useState(false);
+  const [heightModalOpen, setHeightModalOpen] = useState(false);
+  const [ageModalOpen, setAgeModalOpen] = useState(false);
+  const [weightModalOpen, setWeightModalOpen] = useState(false);
+
+  // Values for local editing before save
+  const [localHeight, setLocalHeight] = useState(biometrics.height);
+  const [localAge, setLocalAge] = useState(biometrics.age);
+  const [localWeight, setLocalWeight] = useState(biometrics.weight);
 
   // Remaining UI states
   const [activity, setActivity] = useState('Highly Active');
@@ -161,9 +167,9 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
         <div className="bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm">
           {[
             { label: 'Gender', icon: User, value: biometrics.gender, action: 'gender' },
-            { label: 'Height', icon: Activity, value: biometrics.height + ' cm', action: 'biometrics' },
-            { label: 'Age', icon: Calendar, value: biometrics.age, action: 'biometrics' },
-            { label: 'Weight', icon: Weight, value: biometrics.weight + ' kg', action: 'biometrics' },
+            { label: 'Height', icon: Activity, value: biometrics.height + ' cm', action: 'height' },
+            { label: 'Age', icon: Calendar, value: biometrics.age, action: 'age' },
+            { label: 'Weight', icon: Weight, value: biometrics.weight + ' kg', action: 'weight' },
             { label: 'Activity level', icon: Flame, value: activity, action: 'activity' },
             { label: 'Macro Goals', icon: PieChart, value: `${macros.carbs}C ${macros.protein}P ${macros.fat}F`, action: 'macros' },
             { label: 'Units', icon: Settings, value: 'kg ft/in', action: 'main' }
@@ -173,6 +179,18 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
                 onClick={() => {
                   if (item.action === 'gender') {
                     setGenderModalOpen(true);
+                    return;
+                  }
+                  if (item.action === 'height') {
+                    setHeightModalOpen(true);
+                    return;
+                  }
+                  if (item.action === 'age') {
+                    setAgeModalOpen(true);
+                    return;
+                  }
+                  if (item.action === 'weight') {
+                    setWeightModalOpen(true);
                     return;
                   }
                   if (item.action !== 'main') setCurrentPage(item.action as SubPage);
@@ -198,30 +216,150 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
 
       {/* Body Profile Gender Dialog */}
       {genderModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Select Gender</p>
-                <h3 className="mt-2 text-lg font-black text-gray-900">Choose your body profile gender</h3>
+        <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-sm rounded-[3rem] bg-white p-8 shadow-2xl border border-white">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 mb-6 border border-white shadow-sm">
+                <User size={32} />
               </div>
-              <button onClick={() => setGenderModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">Cancel</button>
+              <h3 className="text-2xl font-black text-gray-900 tracking-tight mb-2">Identify Body Profile</h3>
+              <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-8">This optimizes your metabolic AI.</p>
+              
+              <div className="w-full space-y-3">
+                {['Male', 'Female'].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      updateBiometrics({ gender: option });
+                      setGenderModalOpen(false);
+                    }}
+                    className={`w-full py-5 rounded-2xl text-sm font-black transition-all ${biometrics.gender === option ? 'bg-[#7ED957] text-white shadow-lg shadow-[#7ED957]/30' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                  >
+                    {option.toUpperCase()} {biometrics.gender === option && '✓'}
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setGenderModalOpen(false)} className="mt-6 text-[10px] font-black text-gray-300 uppercase tracking-widest hover:text-gray-900 transition-colors">Dismiss</button>
             </div>
-            <div className="space-y-3">
-              {['Male', 'Female', 'Other'].map((option) => (
-                <button
-                  key={option}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Height Dialog */}
+      {heightModalOpen && (
+        <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-sm rounded-[3rem] bg-white p-8 shadow-2xl border border-white">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mb-6 border border-white shadow-sm">
+                <Activity size={32} />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 tracking-tight mb-1">Stature Protocol</h3>
+              <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-8">Enter height in centimeters</p>
+              
+              <div className="w-full relative mb-8">
+                <input 
+                  type="number" 
+                  value={localHeight}
+                  onChange={(e) => setLocalHeight(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-5 text-3xl font-black text-center text-gray-900 outline-none focus:bg-white focus:border-[#7ED957] transition-all shadow-inner"
+                  autoFocus
+                />
+                <span className="absolute right-6 top-1/2 -translate-y-1/2 font-black text-gray-300 tracking-widest text-xs">CM</span>
+              </div>
+              
+              <div className="w-full grid grid-cols-2 gap-3">
+                <button onClick={() => setHeightModalOpen(false)} className="py-4 rounded-xl text-gray-400 font-black text-xs uppercase tracking-widest bg-gray-50">Cancel</button>
+                <button 
                   onClick={() => {
-                    updateBiometrics({ gender: option });
-                    setGenderModalOpen(false);
-                  }}
-                  className="w-full rounded-3xl border border-gray-200 px-5 py-4 text-left text-sm font-semibold text-gray-900 hover:border-gray-300 hover:bg-gray-50 transition"
+                    updateBiometrics({ height: localHeight });
+                    setHeightModalOpen(false);
+                  }} 
+                  className="py-4 rounded-xl bg-[#7ED957] text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-[#7ED957]/20"
                 >
-                  {option}
+                  Save
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Age Dialog */}
+      {ageModalOpen && (
+        <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-sm rounded-[3rem] bg-white p-8 shadow-2xl border border-white">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 mb-6 border border-white shadow-sm">
+                <Calendar size={32} />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 tracking-tight mb-1">Chronology Log</h3>
+              <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-8">Enter your current age</p>
+              
+              <div className="w-full relative mb-8">
+                <input 
+                  type="number" 
+                  value={localAge}
+                  onChange={(e) => setLocalAge(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-5 text-3xl font-black text-center text-gray-900 outline-none focus:bg-white focus:border-[#7ED957] transition-all shadow-inner"
+                  autoFocus
+                />
+                <span className="absolute right-6 top-1/2 -translate-y-1/2 font-black text-gray-300 tracking-widest text-xs">YEARS</span>
+              </div>
+              
+              <div className="w-full grid grid-cols-2 gap-3">
+                <button onClick={() => setAgeModalOpen(false)} className="py-4 rounded-xl text-gray-400 font-black text-xs uppercase tracking-widest bg-gray-50">Cancel</button>
+                <button 
+                  onClick={() => {
+                    updateBiometrics({ age: localAge });
+                    setAgeModalOpen(false);
+                  }} 
+                  className="py-4 rounded-xl bg-[#7ED957] text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-[#7ED957]/20"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Weight Dialog */}
+      {weightModalOpen && (
+        <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-sm rounded-[3rem] bg-white p-8 shadow-2xl border border-white">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-500 mb-6 border border-white shadow-sm">
+                <Weight size={32} />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 tracking-tight mb-1">Mass Analysis</h3>
+              <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-8">Enter your current weight</p>
+              
+              <div className="w-full relative mb-8">
+                <input 
+                  type="number" 
+                  step="0.1"
+                  value={localWeight}
+                  onChange={(e) => setLocalWeight(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-5 text-3xl font-black text-center text-gray-900 outline-none focus:bg-white focus:border-[#7ED957] transition-all shadow-inner"
+                  autoFocus
+                />
+                <span className="absolute right-6 top-1/2 -translate-y-1/2 font-black text-gray-300 tracking-widest text-xs">KG</span>
+              </div>
+              
+              <div className="w-full grid grid-cols-2 gap-3">
+                <button onClick={() => setWeightModalOpen(false)} className="py-4 rounded-xl text-gray-400 font-black text-xs uppercase tracking-widest bg-gray-50">Cancel</button>
+                <button 
+                  onClick={() => {
+                    updateBiometrics({ weight: localWeight });
+                    setWeightModalOpen(false);
+                  }} 
+                  className="py-4 rounded-xl bg-[#7ED957] text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-[#7ED957]/20"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
       )}
 
