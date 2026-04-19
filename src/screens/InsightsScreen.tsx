@@ -1,16 +1,35 @@
 "use client";
 import React, { useState } from 'react';
-import { Egg, Sparkles, Flame, Apple, ChevronLeft, ChevronRight, Utensils, Leaf } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Egg, Sparkles, Flame, Apple, ChevronLeft, ChevronRight, Utensils, Leaf, Target, X, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
 import { useUser } from '../context/UserContext';
 import CuteCalendarModal from '../components/CuteCalendarModal';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () => void }) {
-  const { meals, dynamicTargets, weightLogs } = useUser();
+  const { meals, dynamicTargets, weightLogs, biometrics } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
+  const [weightGoal, setWeightGoal] = useLocalStorage<string>('fb_weight_goal', '');
+  const [proteinGoal, setProteinGoal] = useLocalStorage<string>('fb_protein_goal', '');
+  const [showWeightModal, setShowWeightModal] = useState(false);
+  const [showProteinModal, setShowProteinModal] = useState(false);
+  const [localWeightGoal, setLocalWeightGoal] = useState('');
+  const [localProteinGoal, setLocalProteinGoal] = useState('');
+  const [magicInsightIdx, setMagicInsightIdx] = useState(0);
   
+  const MAGIC_INSIGHTS = [
+    "You consume more carbs on weekends. Try balancing with an extra egg or two! 🥚🍳",
+    "Your protein intake is consistently below target. Consider adding Greek yogurt to your routine! 🥛💪",
+    "You tend to eat larger meals at dinner. Try distributing calories more evenly throughout the day! 🌅",
+    "Your best workout days align with higher carb intake — great intuitive eating! 🏋️🔥",
+    "Hydration tip: Eating more fiber without enough water can slow your digestion. Drink up! 💧🌿",
+    "Your fat intake spikes on rest days. Channel that energy with a quick 20-min walk instead! 🚶‍♂️",
+    "You're crushing it this week! Your macro consistency is in the top 15% of Bunny users. 🐰🏆",
+    "Missing breakfast? Studies show it improves focus and reduces overeating by evening! 🌄🍳",
+  ];
+
   const selectedDateStr = currentDate.toISOString().split('T')[0];
   const selectedDateMeals = meals.filter(m => m.fullDate === selectedDateStr);
   const totalFoodCals = selectedDateMeals.reduce((acc, m) => acc + m.calories, 0);
@@ -250,57 +269,117 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             </div>
           </motion.div>
 
-          {/* Weight Card */}
+          {/* Weight Trajectory Card */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-gradient-to-br from-white to-[#f8fafb] rounded-[2.5rem] p-6 shadow-[0_15px_40px_rgba(0,0,0,0.06)] border border-white/80 hover:shadow-[0_20px_50px_rgba(20,69,0,0.08)] hover:-translate-y-1 transition-all duration-500 relative overflow-hidden group"
+            className="bg-gradient-to-br from-white to-[#f8fafb] rounded-[2.5rem] p-6 shadow-[0_15px_40px_rgba(0,0,0,0.06)] border border-white/80 relative overflow-hidden group"
           >
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-baseline gap-2">
-                <h2 className="text-[17px] font-bold text-[#3a4746]">Weight Trend</h2>
-                <span className="text-[#89979b] text-[11px] font-extrabold uppercase tracking-widest">(Latest Logs)</span>
+                <h2 className="text-[17px] font-bold text-[#3a4746]">Weight Trajectory</h2>
               </div>
-              <div className="text-right">
-                <span className="text-2xl font-black text-[#3a4746]">{weightLogs[0]?.weight} <span className="text-xs font-bold text-[#a4afb3]">kg</span></span>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-black text-[#3a4746]">{weightLogs[0]?.weight ?? biometrics.weight ?? '--'} <span className="text-xs font-bold text-[#a4afb3]">kg</span></span>
+                <button
+                  onClick={() => { setLocalWeightGoal(weightGoal); setShowWeightModal(true); }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f0f3f4] hover:bg-[#8de15c] hover:text-white text-[#89979b] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                  <Target size={12} /> Set Goal
+                </button>
               </div>
             </div>
             
-            <div className="relative h-44 w-full mt-2 pr-2">
-              <div className="absolute inset-0 flex flex-col justify-between pt-2 pb-8">
-                  <div className="border-b border-dashed border-[#e2e8e9] w-full flex items-center h-0"><span className="absolute left-0 -mt-2 text-[10px] font-bold text-[#a4afb3]">79</span></div>
-                  <div className="border-b border-dashed border-[#e2e8e9] w-full flex items-center h-0"><span className="absolute left-0 -mt-2 text-[10px] font-bold text-[#a4afb3]">74</span></div>
-                  <div className="border-b border-dashed border-[#e2e8e9] w-full flex items-center h-0"><span className="absolute left-0 -mt-2 text-[10px] font-bold text-[#a4afb3]">70</span></div>
-                  <div className="border-b border-dashed border-[#e2e8e9] w-full flex items-center h-0"><span className="absolute left-0 -mt-2 text-[10px] font-bold text-[#a4afb3]">65 kg</span></div>
-              </div>
-              <div className="absolute inset-0 pl-10 pr-4 flex items-end justify-end pb-20">
-                  <motion.div 
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 12, delay: 0.8 }}
-                    className="w-4 h-4 rounded-full bg-red-500 border-[3px] border-white shadow-lg z-10"
-                  ></motion.div>
-                  {/* Decorative line to show potential future trend */}
-                  <svg className="absolute w-full h-[60%] inset-x-0 bottom-8 px-10 overflow-visible opacity-20">
-                    <motion.path 
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 2, ease: "easeInOut" }}
-                      d="M 10 50 Q 80 10 150 40 T 250 20 T 350 30"
-                      fill="none" 
-                      stroke="red" 
-                      strokeWidth="2" 
-                      strokeDasharray="4 4"
+            <div className="space-y-4">
+              {weightGoal ? (
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[11px] font-black text-[#89979b] uppercase tracking-widest">Current</span>
+                  <span className="text-[11px] font-black text-[#89979b] uppercase tracking-widest">Goal: {weightGoal}kg</span>
+                </div>
+              ) : (
+                <p className="text-[11px] font-bold text-[#b9c3c1] text-center py-2">Tap "Set Goal" to track your weight target 🎯</p>
+              )}
+
+              {weightLogs.length > 0 ? (
+                <div className="flex items-end justify-between gap-2 h-20 pt-2">
+                  {weightLogs.slice(0, 7).reverse().map((log, i, arr) => {
+                    const weights = arr.map(l => l.weight);
+                    const minW = Math.min(...weights);
+                    const maxW = Math.max(...weights);
+                    const range = maxW - minW || 1;
+                    const h = ((log.weight - minW) / range) * 60 + 20;
+                    const isLatest = i === arr.length - 1;
+                    return (
+                      <div key={log.date} className="flex flex-col items-center gap-1 flex-1">
+                        <div 
+                          className={`w-full rounded-full transition-all ${isLatest ? 'bg-[#8de15c]' : 'bg-[#dce5e7]'}`} 
+                          style={{ height: `${h}%` }}
+                        />
+                        <span className="text-[9px] font-bold text-[#a4afb3]">{log.weight}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="h-20 flex items-center justify-center">
+                  <p className="text-[11px] font-bold text-[#b9c3c1] italic">No weight logs yet. Update your weight in Profile!</p>
+                </div>
+              )}
+
+              {weightGoal && weightLogs[0]?.weight && (
+                <div className="mt-2">
+                  <div className="flex justify-between text-[10px] font-black text-[#89979b] mb-1">
+                    <span>Progress to goal</span>
+                    <span>{Math.abs(weightLogs[0].weight - parseFloat(weightGoal)).toFixed(1)}kg to go</span>
+                  </div>
+                  <div className="h-2 w-full bg-[#f0f3f4] rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#8de15c] rounded-full transition-all"
+                      style={{ 
+                        width: `${Math.min(100, Math.max(0, (1 - Math.abs(weightLogs[0].weight - parseFloat(weightGoal)) / Math.abs(parseFloat(biometrics.weight || weightLogs[0].weight.toString()) - parseFloat(weightGoal))) * 100))}%` 
+                      }}
                     />
-                  </svg>
-              </div>
-              <div className="absolute bottom-0 inset-x-0 flex justify-between pl-10 pr-2 pt-2">
-                {['Jan', 'Feb', 'Mar'].map(m => <span key={m} className="text-[10px] font-bold text-[#a4afb3]">{m}</span>)}
-              </div>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         </section>
+
+        {/* Weight Goal Modal */}
+        <AnimatePresence>
+          {showWeightModal && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="w-full max-w-sm rounded-[3rem] bg-white p-8 shadow-2xl">
+                <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mb-6">
+                    <Target size={32} />
+                  </div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-1">Weight Goal</h3>
+                  <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-8">Set your target body weight</p>
+                  <div className="w-full relative mb-8">
+                    <input 
+                      type="number" step="0.1"
+                      value={localWeightGoal}
+                      onChange={e => setLocalWeightGoal(e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-5 text-3xl font-black text-center text-gray-900 outline-none focus:border-[#8de15c] transition-all"
+                      autoFocus
+                      placeholder="70"
+                    />
+                    <span className="absolute right-6 top-1/2 -translate-y-1/2 font-black text-gray-300 text-xs">KG</span>
+                  </div>
+                  <div className="w-full grid grid-cols-2 gap-3">
+                    <button onClick={() => setShowWeightModal(false)} className="py-4 rounded-xl text-gray-400 font-black text-xs uppercase tracking-widest bg-gray-50">Cancel</button>
+                    <button onClick={() => { setWeightGoal(localWeightGoal); setShowWeightModal(false); }} className="py-4 rounded-xl bg-[#8de15c] text-white font-black text-xs uppercase tracking-widest">
+                      Save Goal
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* --- PREEXISTING INSIGHTS UI --- */}
         <div className="grid grid-cols-2 gap-4">
@@ -342,6 +421,7 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             </div>
           </motion.div>
 
+          {/* Vibe Card - Dynamic based on macro balance */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -349,23 +429,43 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             transition={{ delay: 0.1 }}
             className="p-6 bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-[2.5rem] flex flex-col items-center justify-center gap-4 text-center hover:bg-white/50 transition-colors group"
           >
-            <div className="relative w-24 h-24 flex items-center justify-center rounded-full shadow-inner overflow-hidden" style={{ background: 'conic-gradient(from 0deg, #8de15c 0%, #8de15c 65%, #edc541 65%, #edc541 85%, #ffa024 85%, #ffa024 100%)' }}>
-              <div className="absolute inset-[6px] bg-white/90 backdrop-blur-md rounded-full border-2 border-white/80 flex flex-col items-center justify-center shadow-sm">
-                <span className="text-xs font-extrabold text-[#3a4746] tracking-widest leading-none drop-shadow-sm group-hover:scale-110 transition-transform">VIBE</span>
-              </div>
-            </div>
-            <div className="mt-2 text-[#3a4746]">
-              <p className="text-sm font-extrabold leading-none">Optimal Focus</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest mt-1.5 flex items-center justify-center gap-1 opacity-60"><Sparkles className="w-3 h-3 text-[#8de15c]"/>Weekly Balance</p>
-            </div>
+            {(() => {
+              const hasData = totalFoodCals > 0;
+              const carbOk = carbPct >= 30 && carbPct <= 60;
+              const protOk = proteinPct >= 20 && proteinPct <= 50;
+              const fatOk = fatPct >= 10 && fatPct <= 35;
+              const balanced = carbOk && protOk && fatOk;
+              const vibeLabel = !hasData ? 'No Data' : balanced ? 'Optimal' : proteinPct < 20 ? 'Low Protein' : fatPct > 40 ? 'High Fat' : 'Unbalanced';
+              const vibeColor = !hasData ? '#a4afb3' : balanced ? '#8de15c' : '#ffa024';
+              const carbStop = carbPct;
+              const protStop = carbPct + proteinPct;
+              const gradient = hasData
+                ? `conic-gradient(from 0deg, #fcd34d 0%, #fcd34d ${carbStop}%, #3b82f6 ${carbStop}%, #3b82f6 ${protStop}%, #f97316 ${protStop}%, #f97316 100%)`
+                : `conic-gradient(from 0deg, #e5e7eb 0%, #e5e7eb 100%)`;
+              return (
+                <>
+                  <div className="relative w-24 h-24 flex items-center justify-center rounded-full shadow-inner overflow-hidden" style={{ background: gradient }}>
+                    <div className="absolute inset-[6px] bg-white/90 backdrop-blur-md rounded-full border-2 border-white/80 flex flex-col items-center justify-center shadow-sm">
+                      <span className="text-xs font-extrabold tracking-widest leading-none drop-shadow-sm group-hover:scale-110 transition-transform" style={{ color: vibeColor }}>VIBE</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-[#3a4746]">
+                    <p className="text-sm font-extrabold leading-none" style={{ color: vibeColor }}>{vibeLabel}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mt-1.5 flex items-center justify-center gap-1 opacity-60"><Sparkles className="w-3 h-3 text-[#8de15c]"/>Weekly Balance</p>
+                  </div>
+                </>
+              );
+            })()}
           </motion.div>
 
+          {/* Protein Goal Card - Editable */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="p-6 bg-[#8de15c]/10 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-[2.5rem] flex flex-col justify-between relative overflow-hidden group"
+            onClick={() => { setLocalProteinGoal(proteinGoal); setShowProteinModal(true); }}
+            className="p-6 bg-[#8de15c]/10 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-[2.5rem] flex flex-col justify-between relative overflow-hidden group cursor-pointer active:scale-95 transition-all"
           >
             <Egg className="absolute -bottom-4 -right-4 w-28 h-28 text-white/40 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 drop-shadow-none" />
             <div className="flex justify-between items-start relative z-10">
@@ -375,17 +475,52 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
               <span className="text-[10px] font-extrabold text-[#3a4746] bg-white/80 px-2 py-1 rounded-full uppercase tracking-widest shadow-sm border border-white">GOAL</span>
             </div>
             <div className="mt-6 relative z-10 text-[#3a4746]">
-              <h4 className="text-3xl font-extrabold tracking-tighter drop-shadow-sm">142g</h4>
-              <p className="text-[11px] font-extrabold mt-1 tracking-widest uppercase opacity-80">Protein Target</p>
+              <h4 className="text-3xl font-extrabold tracking-tighter drop-shadow-sm">{proteinGoal ? `${proteinGoal}g` : `${dynamicTargets.protein}g`}</h4>
+              <p className="text-[11px] font-extrabold mt-1 tracking-widest uppercase opacity-80">Protein Goal · Tap to Edit</p>
             </div>
           </motion.div>
-        </div>
+
+          {/* Protein Goal Modal */}
+          <AnimatePresence>
+            {showProteinModal && (
+              <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="w-full max-w-sm rounded-[3rem] bg-white p-8 shadow-2xl">
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mb-6">
+                      <Egg size={32} />
+                    </div>
+                    <h3 className="text-2xl font-black text-gray-900 mb-1">Protein Goal</h3>
+                    <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-8">Set your daily protein target</p>
+                    <div className="w-full relative mb-8">
+                      <input 
+                        type="number" step="1"
+                        value={localProteinGoal}
+                        onChange={e => setLocalProteinGoal(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-5 text-3xl font-black text-center text-gray-900 outline-none focus:border-[#8de15c] transition-all"
+                        autoFocus
+                        placeholder={dynamicTargets.protein.toString()}
+                      />
+                      <span className="absolute right-6 top-1/2 -translate-y-1/2 font-black text-gray-300 text-xs">GRAMS</span>
+                    </div>
+                    <div className="w-full grid grid-cols-2 gap-3">
+                      <button onClick={() => setShowProteinModal(false)} className="py-4 rounded-xl text-gray-400 font-black text-xs uppercase tracking-widest bg-gray-50">Cancel</button>
+                      <button onClick={() => { setProteinGoal(localProteinGoal); setShowProteinModal(false); }} className="py-4 rounded-xl bg-[#8de15c] text-white font-black text-xs uppercase tracking-widest">
+                        Save Goal
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
 
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="p-6 bg-white/60 backdrop-blur-3xl shadow-[0_16px_48px_rgba(0,0,0,0.08)] rounded-[2.5rem] border border-white relative overflow-hidden group"
+          onClick={() => setMagicInsightIdx(i => (i + 1) % MAGIC_INSIGHTS.length)}
+          className="p-6 bg-white/60 backdrop-blur-3xl shadow-[0_16px_48px_rgba(0,0,0,0.08)] rounded-[2.5rem] border border-white relative overflow-hidden group cursor-pointer active:scale-[0.98] transition-all"
         >
           <div className="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-60 transition-opacity translate-x-4 -translate-y-4">
             <Sparkles className="w-28 h-28 text-[#ffa024]" />
@@ -394,14 +529,28 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             <div className="bg-[#ffa024] p-3 rounded-2xl shadow-[0_4px_16px_rgba(255,160,36,0.5)] border border-[#ffa024]/50">
               <Sparkles className="text-white w-6 h-6" fill="currentColor" />
             </div>
-            <div className="space-y-1 mt-1">
-              <h4 className="text-[10px] font-extrabold text-[#ffa024] uppercase tracking-widest flex items-center gap-1.5 shadow-white">Magic Insight</h4>
-              <p className="text-[#3a4746] text-[15px] leading-snug font-bold mt-1 max-w-[220px]">
-                You consume more carbs on weekends. Try balancing with an extra egg or two! 🥚🍳
-              </p>
+            <div className="space-y-1 mt-1 flex-1">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[10px] font-extrabold text-[#ffa024] uppercase tracking-widest">Magic Insight</h4>
+                <div className="flex items-center gap-1 text-[9px] font-black text-[#ffa024]/60 uppercase tracking-widest">
+                  <RefreshCw size={10} /> Tap to refresh
+                </div>
+              </div>
+              <AnimatePresence mode="wait">
+                <motion.p 
+                  key={magicInsightIdx}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="text-[#3a4746] text-[15px] leading-snug font-bold mt-1 max-w-[240px]"
+                >
+                  {MAGIC_INSIGHTS[magicInsightIdx]}
+                </motion.p>
+              </AnimatePresence>
             </div>
           </div>
         </motion.section>
+
 
         <section className="space-y-4 pb-8">
           <div className="flex justify-between items-end px-2">

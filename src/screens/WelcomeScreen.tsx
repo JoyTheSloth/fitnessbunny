@@ -133,13 +133,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
                 </div>
               </motion.button>
 
-              {/* Offline Continue Option */}
-              <button
-                onClick={() => onStart('Guest User', '')}
-                className="text-xs text-gray-500 hover:text-gray-700 transition-colors underline"
-              >
-                Continue using offline
-              </button>
+
             </div>
           </div>
         )}

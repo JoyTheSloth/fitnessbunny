@@ -38,6 +38,19 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
   const [isRecording, setIsRecording] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
 
+  const SUGGESTED_PROMPTS = [
+    { icon: "🍗", label: "100g chicken breast macros", prompt: "What are the macros in 100g of grilled chicken breast?" },
+    { icon: "🥚", label: "Eggs for breakfast", prompt: "I had 3 boiled eggs for breakfast, what's the calorie count?" },
+    { icon: "🍚", label: "Rice calorie count", prompt: "How many calories in 1 cup of cooked white rice?" },
+    { icon: "💪", label: "Muscle gain meal plan", prompt: "Give me a quick high-protein meal idea for muscle gain" },
+    { icon: "🥗", label: "Low calorie lunch", prompt: "Suggest a filling lunch under 400 calories" },
+    { icon: "🧃", label: "Post-workout shake", prompt: "Best protein shake ingredients after a heavy workout session?" },
+    { icon: "🍕", label: "Cheat meal damage", prompt: "I ate 2 slices of pizza. How bad is the damage?" },
+    { icon: "🏋️", label: "Bulking deficit", prompt: "How many extra calories should I eat for a lean bulk?" },
+    { icon: "🥦", label: "Vegetable protein sources", prompt: "What are the best plant-based protein foods I can add daily?" },
+    { icon: "⚡", label: "Pre-workout food", prompt: "What should I eat 1 hour before a workout for max energy?" },
+  ];
+
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Good morning");
@@ -112,7 +125,7 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`
+      "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY}`
         },
         body: JSON.stringify({
           model: "llama-3.3-70b-versatile",
@@ -233,6 +246,23 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
                   </button>
               </div>
             </form>
+
+            {/* Suggested Prompts */}
+            <div className="mt-6">
+              <p className="text-[9px] font-black text-[#b9c3c1] uppercase tracking-[0.2em] mb-3">Quick Questions</p>
+              <div className="flex flex-wrap gap-2">
+                {SUGGESTED_PROMPTS.slice(0, 6).map((s) => (
+                  <button
+                    key={s.label}
+                    onClick={() => setInput(s.prompt)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white/60 border border-white/80 text-[11px] font-bold text-[#3a4746] hover:bg-white hover:shadow-sm transition-all active:scale-95"
+                  >
+                    <span>{s.icon}</span>
+                    <span>{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
