@@ -219,7 +219,7 @@ export default function AIAssistant({ isOpen, onClose }: { isOpen: boolean; onCl
                   className="w-full h-14 bg-white rounded-2xl px-6 pr-14 text-sm font-bold text-[#3a4746] shadow-inner border border-[#e2e8e9] focus:ring-2 focus:ring-primary/20 outline-none"
                 />
                 <button 
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={isLoading || !input.trim()}
                   className="absolute right-2 w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                 >
