@@ -97,55 +97,59 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-[2.5rem] p-6 shadow-[0_15px_40px_rgba(0,0,0,0.04)] border border-[#eff3f4] relative overflow-hidden group"
+            className="bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-[0_15px_40px_rgba(0,0,0,0.04)] border border-[#eff3f4] relative overflow-hidden group"
           >
-            <div className="relative z-10">
+            <div className="relative z-10 w-full">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-[17px] font-bold text-[#3a4746]">Calories Consumption</h2>
-                <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#89979b] bg-[#f0f3f4] px-3 py-1.5 rounded-xl">Last 7 Days</div>
+                <h2 className="text-[17px] font-black text-[#4b5563]">Calories Consumption</h2>
+                <div className="text-[10px] font-black uppercase tracking-widest text-[#6b7280] bg-[#f3f4f6] px-4 py-2 rounded-xl">Last 7 Days</div>
               </div>
               
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
-                <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+              <div className="flex flex-col gap-10 lg:flex-row lg:items-center w-full">
+                <div className="flex flex-col items-center gap-6 w-full lg:w-1/3">
+                  <div className="relative w-32 h-32 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90 absolute">
-                      <circle className="text-[#f0f3f4] stroke-current" cx="56" cy="56" r="48" strokeWidth="10" fill="none" />
+                      <circle className="text-[#f3f4f6] stroke-current" cx="64" cy="64" r="54" strokeWidth="12" fill="none" />
                       <motion.circle 
-                        initial={{ strokeDashoffset: 301.6 }}
-                        animate={{ strokeDashoffset: 301.6 * (1 - Math.min(avgFoodCals / goalCals, 1)) }}
+                        initial={{ strokeDashoffset: 339.3 }}
+                        animate={{ strokeDashoffset: 339.3 * (1 - Math.min(avgFoodCals / goalCals, 1)) }}
                         transition={{ duration: 1.5, ease: "easeOut" }}
                         className="text-[#8de15c] stroke-current" 
-                        cx="56" cy="56" r="48" strokeWidth="10" fill="none" 
-                        strokeDasharray="301.6" strokeLinecap="round" 
+                        cx="64" cy="64" r="54" strokeWidth="12" fill="none" 
+                        strokeDasharray="339.3" strokeLinecap="round" 
                       />
                     </svg>
                     <div className="flex flex-col items-center justify-center text-center mt-1 z-10">
-                      <span className="text-3xl font-black text-[#3a4746] leading-none">{avgFoodCals}</span>
-                      <span className="text-[9px] text-[#89979b] font-extrabold uppercase mt-1 tracking-wider">AVG CAL</span>
+                      <span className="text-3xl font-black text-[#1f2937] leading-none tracking-tighter">{avgFoodCals.toLocaleString()}</span>
+                      <span className="text-[9px] text-[#9ca3af] font-black uppercase mt-1 tracking-widest">AVG CAL</span>
                     </div>
                   </div>
                   
-                  <div className="bg-white border border-[#eff3f4] rounded-[2rem] px-4 py-3 flex flex-col items-center shadow-[0_10px_25px_rgba(141,225,92,0.08)]">
-                    <span className="text-[9px] text-[#89979b] font-extrabold uppercase tracking-wider">Net Change</span>
-                    <span className="text-sm font-black text-[#3a4746] mt-1">{netChangeLabel} <span className={`${netChangePositive ? 'text-red-400' : 'text-[#8de15c]'} text-[10px]`}>{netChangePositive ? '▲' : '▼'}</span></span>
+                  <div className="bg-white border border-[#e5e7eb] rounded-2xl px-5 py-3 flex flex-col items-center shadow-sm w-full max-w-[140px]">
+                    <span className="text-[9px] text-[#9ca3af] font-black uppercase tracking-widest">Net Change</span>
+                    <span className="text-sm font-black text-[#4b5563] mt-0.5 flex items-center gap-1">
+                      {netChangeLabel} <span className={`${netChangePositive ? 'text-[#ef4444]' : 'text-[#8de15c]'} text-[10px]`}>{netChangePositive ? '▲' : '▼'}</span>
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex-1 flex justify-between items-end h-28 px-1">
+                <div className="flex-1 flex justify-between items-end h-36 px-2 w-full lg:w-2/3">
                   {weekDays.map((day, i) => {
                     const h = Math.max((day.calories / goalCals) * 100, 3);
                     const isToday = day.date.toDateString() === currentDate.toDateString();
                     return (
                       <div key={day.dateStr} className="flex flex-col items-center gap-3">
-                        <div className="w-[12px] bg-[#f0f3f4] rounded-full relative overflow-hidden h-24">
+                        <div className="w-4 bg-[#f3f4f6] rounded-full relative overflow-hidden h-28">
                           <motion.div 
                             initial={{ height: 0 }}
                             animate={{ height: `${h}%` }}
                             transition={{ duration: 1, delay: i * 0.05 }}
-                            className={`absolute bottom-0 left-0 w-full rounded-full ${isToday ? 'bg-[#8de15c]' : 'bg-[#dce5e7]'} opacity-80`}
+                            className={`absolute bottom-0 left-0 w-full rounded-full ${isToday ? 'bg-[#8de15c]' : 'bg-[#d1d5db]'}`}
                           />
                         </div>
-                        <span className={`${isToday ? 'text-[#8de15c] font-black' : 'text-[#a4afb3] font-bold'} text-[10px]`}>{day.date.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1)}</span>
+                        <span className={`${isToday ? 'text-[#8de15c] font-black' : 'text-[#9ca3af] font-bold'} text-[10px]`}>
+                          {day.date.toLocaleDateString('en-US', { weekday: 'short' })}
+                        </span>
                       </div>
                     );
                   })}
@@ -159,88 +163,85 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-[2.5rem] p-6 shadow-[0_15px_40px_rgba(0,0,0,0.04)] border border-[#eff3f4] relative overflow-hidden group"
+            className="bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-[0_15px_40px_rgba(0,0,0,0.04)] border border-[#eff3f4] relative overflow-hidden group"
           >
-            <div className="relative z-10">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-[17px] font-bold text-[#3a4746]">Nutrient Balance</h2>
-                <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#8de15c] bg-[#eefaf2] px-3 py-1.5 rounded-xl">Optimal</div>
+            <div className="relative z-10 w-full">
+              <div className="flex justify-between items-center mb-10">
+                <h2 className="text-[17px] font-black text-[#4b5563]">Nutrient Balance</h2>
+                <div className="text-[10px] font-black uppercase tracking-widest text-[#8de15c] bg-[#eefaf2] px-4 py-2 rounded-xl">Optimal</div>
               </div>
               
-              <div className="flex flex-col gap-8 lg:flex-row lg:items-center w-full">
-                <div className="flex flex-col items-center gap-6 w-full lg:w-auto">
-                  <div className="relative w-28 h-28 sm:w-32 sm:h-32">
+              <div className="flex flex-col gap-10 lg:flex-row lg:items-center w-full">
+                <div className="flex flex-col items-center gap-8 w-full lg:w-[40%]">
+                  <div className="relative w-36 h-36">
                     <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                      {/* Carbs */}
-                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#edc541" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (carbPct / 100))} strokeLinecap="round" />
-                      {/* Protein */}
-                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#309af0" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (proteinPct / 100))} strokeLinecap="round" style={{ transform: `rotate(${carbPct * 3.6}deg)`, transformOrigin: 'center' }} />
-                      {/* Fat */}
-                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#ffa024" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (fatPct / 100))} strokeLinecap="round" style={{ transform: `rotate(${(carbPct + proteinPct) * 3.6}deg)`, transformOrigin: 'center' }} />
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#fcd34d" strokeWidth="16" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (carbPct / 100))} strokeLinecap="round" />
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#3b82f6" strokeWidth="16" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (proteinPct / 100))} strokeLinecap="round" style={{ transform: `rotate(${carbPct * 3.6}deg)`, transformOrigin: 'center' }} />
+                      <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f97316" strokeWidth="16" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (fatPct / 100))} strokeLinecap="round" style={{ transform: `rotate(${(carbPct + proteinPct) * 3.6}deg)`, transformOrigin: 'center' }} />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <Sparkles className="w-5 h-5 text-[#8de15c]" fill="currentColor" />
+                      <Sparkles className="w-6 h-6 text-[#8de15c]" fill="currentColor" />
                     </div>
                   </div>
                   
-                  <div className="flex flex-wrap justify-center gap-3">
+                  <div className="flex justify-center gap-4 w-full">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#edc541]"></div>
-                      <span className="text-[#3a4746] text-[10px] font-bold">{carbPct}% Carbs</span>
+                      <div className="w-3 h-3 rounded-full bg-[#fcd34d]"></div>
+                      <span className="text-[#4b5563] text-[11px] font-black tracking-wide">{carbPct}% Carbs</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#309af0]"></div>
-                      <span className="text-[#3a4746] text-[10px] font-bold">{proteinPct}% Protein</span>
+                      <div className="w-3 h-3 rounded-full bg-[#3b82f6]"></div>
+                      <span className="text-[#4b5563] text-[11px] font-black tracking-wide">{proteinPct}% Protein</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#ffa024]"></div>
-                      <span className="text-[#3a4746] text-[10px] font-bold">{fatPct}% Fat</span>
+                      <div className="w-3 h-3 rounded-full bg-[#f97316]"></div>
+                      <span className="text-[#4b5563] text-[11px] font-black tracking-wide">{fatPct}% Fat</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex-1 space-y-5">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
-                      <span className="flex items-center gap-2 text-[#edc541]"><Apple className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Carbs</span></span>
-                      <span>{carbPct}% <span className="text-[#89979b] font-medium ml-1">/ {targetCarbPct}% Target</span></span>
+                <div className="flex-1 space-y-8 lg:w-[60%]">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="flex items-center gap-3 font-black text-[#4b5563] tracking-widest"><Apple className="w-4 h-4 text-[#fcd34d]" fill="currentColor" /> CARBS</span>
+                      <span className="font-black text-[#1f2937] text-sm">{carbPct}% <span className="text-[#9ca3af] font-medium text-[11px] ml-1 tracking-widest">/ {targetCarbPct}% TARGET</span></span>
                     </div>
-                    <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
+                    <div className="h-3.5 w-full bg-[#f3f4f6] rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${carbPct}%` }}
                         transition={{ duration: 1.2, ease: "easeOut" }}
-                        className="h-full bg-[#edc541] rounded-full"
+                        className="h-full bg-[#fcd34d] rounded-full"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
-                      <span className="flex items-center gap-2 text-[#309af0]"><Egg className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Protein</span></span>
-                      <span>{proteinPct}% <span className="text-[#89979b] font-medium ml-1">/ {targetProteinPct}% Target</span></span>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="flex items-center gap-3 font-black text-[#4b5563] tracking-widest"><Egg className="w-4 h-4 text-[#3b82f6]" fill="currentColor" /> PROTEIN</span>
+                      <span className="font-black text-[#1f2937] text-sm">{proteinPct}% <span className="text-[#9ca3af] font-medium text-[11px] ml-1 tracking-widest">/ {targetProteinPct}% TARGET</span></span>
                     </div>
-                    <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
+                    <div className="h-3.5 w-full bg-[#f3f4f6] rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${proteinPct}%` }}
                         transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
-                        className="h-full bg-[#309af0] rounded-full"
+                        className="h-full bg-[#3b82f6] rounded-full"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
-                      <span className="flex items-center gap-2 text-[#ffa024]"><Flame className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Fat</span></span>
-                      <span>{fatPct}% <span className="text-[#89979b] font-medium ml-1">/ {targetFatPct}% Target</span></span>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="flex items-center gap-3 font-black text-[#4b5563] tracking-widest"><Flame className="w-4 h-4 text-[#f97316]" fill="currentColor" /> FAT</span>
+                      <span className="font-black text-[#1f2937] text-sm">{fatPct}% <span className="text-[#9ca3af] font-medium text-[11px] ml-1 tracking-widest">/ {targetFatPct}% TARGET</span></span>
                     </div>
-                    <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
+                    <div className="h-3.5 w-full bg-[#f3f4f6] rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${fatPct}%` }}
                         transition={{ duration: 1.2, ease: "easeOut", delay: 0.4 }}
-                        className="h-full bg-[#ffa024] rounded-full"
+                        className="h-full bg-[#f97316] rounded-full"
                       />
                     </div>
                   </div>
