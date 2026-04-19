@@ -3,19 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
 import { 
-  Sparkles, 
-  Brain,
+  Plus, Send, Sparkles, MessageSquare, Trash2, ArrowLeft, RefreshCw, 
+  ChevronRight, Brain, Zap, Target, Search, Utensils,
   Orbit,
   History,
   Activity,
   Mic,
-  ChevronRight,
   Lightbulb,
-  Utensils,
   Carrot,
-  Loader2,
-  Trash2
+  Loader2
 } from 'lucide-react';
+import { searchFood, FoodItem } from '../lib/foodService';
 import { useUser } from '../context/UserContext';
 
 // Luminous Sanctuary Design Tokens
@@ -68,12 +66,47 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
     recognition.start();
   };
 
-  const handleAISubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleAISubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!input.trim() || isProcessing) return;
 
+    // High-Fidelity Data Retrieval (Database-First RAG)
     setIsProcessing(true);
     setAiResponse(null);
+
+    let foodContext = "";
+    try {
+      // Pass the actual sentence to Supabase FTS for intelligent matching
+      const foundItems = await searchFood(input);
+      
+      if (foundItems && foundItems.length > 0) {
+        foodContext = "\n\nVERIFIED NUTRITION DATA (Priority 1 - Use these exact values): " + 
+          foundItems.map(f => `${f.name}: ${f.nutrition.calories}cal, ${f.nutrition.protein}g protein, ${f.nutrition.carbs}g carbs, ${f.nutrition.fats}g fats, ${f.nutrition.fiber}g fiber per ${f.quantity.value}${f.quantity.unit} (${f.quantity.grams}g)` ).join('. ');
+      }
+    } catch (err) {
+      console.warn("DB Search failed, falling back to pure AI", err);
+    }
+
+    const systemPrompt = `
+      You are Bunny, a professional, sarcastic, and mathematically precise gym trainer. 
+      Speak in Hinglish (Hindi + English) with lots of emojis (💪, 🔥, 🏋️).
+      
+      ${foodContext}
+      
+      PROTOCOL:
+      1. DATABASE-FIRST: If a food item is in the "VERIFIED NUTRITION DATA" above, you MUST use those exact macros for your calculations. Do not guess for those items.
+      2. AI-ESTIMATION (FALLBACK): Only if a food item is NOT mentioned in the verified data, you may estimate the macros based on your own knowledge. 
+      3. TRANSPARENCY: If you are using data from the database, call it "Verified Data". If you are estimating, call it "Bunny's Estimate".
+      
+      MATH REQUIREMENTS:
+      - Calculate totals for the specific quantity/grams the user mentioned.
+      - 1 piece of egg is 50g. 100g chicken is approx 31g protein. 
+      - Provide a concise breakdown: [Food Name] -> [Cals] | [P] | [C] | [F] | [Fi]
+      
+      PERSONA: Be helpful but stay in character. If they eat junk, roast them. If they eat clean, give a sarcastic nod of approval.
+      Keep it punchy. Maximum 4-5 sentences total.
+    `;
+
     try {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -83,24 +116,11 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
         },
         body: JSON.stringify({
           model: "llama-3.3-70b-versatile",
-          messages: [{
-            role: "system",
-            content: `You are Bunny, a highly professional yet incredibly sarcastic gym trainer. 
-            Speak in Hinglish (Hindi + English). 
-            Use lots of emojis like 💪, 🔥, 🏋️. 
-            
-            CORE REQUIREMENT: You must be SCIENTIFICALLY ACCURATE. 
-            - If a user mentions food (e.g., 10 eggs, 500g chicken), calculate the macros EXACTLY (e.g., 1 egg ≈ 6g protein, 10 eggs = 60g protein).
-            - Do not answer "in the air". Use standard nutritional data for your calculations.
-            - Provide a quick breakdown of calories, protein, carbs, and fat when food is mentioned.
-            
-            PERSONA: Be helpful but sarcastic. Make fun of the user if they are eating junk or slacking, but always give them the real numbers they need to hear.
-            Keep responses concise and punchy.`
-          }, {
-            role: "user",
-            content: input
-          }],
-          temperature: 0.7
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: input }
+          ],
+          temperature: 0.1
         })
       });
       const data = await response.json();
@@ -108,7 +128,7 @@ export default function AIHubScreen({ onNavigateToScan, onNavigateToAdd }: AIHub
       setAiResponse(content);
     } catch (error) {
       console.error('AI Hub Error:', error);
-      setAiResponse("Bhai, server down hai lagta hai. Thoda wait karlo! 😤");
+      setAiResponse("Abey, network check karle! 😤 Even Bunny can't reach the cloud right now.");
     } finally {
       setIsProcessing(false);
     }

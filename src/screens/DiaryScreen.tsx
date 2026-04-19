@@ -198,7 +198,7 @@ export default function DiaryScreen({ onOpenPremium, onNavigateToAdd, onOpenScan
       {/* Diary Sanctuary Background */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-100" 
-        style={{ backgroundImage: "url('/10.png')" }}
+        style={{ backgroundImage: "url('/11.png')" }}
       />
 
       <div className="absolute inset-0 z-10">

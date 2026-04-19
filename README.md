@@ -36,11 +36,12 @@ Enter the sanctuary with a single tap. No manual inputs, no friction. Just pure,
 ## 🛠️ Technical Supreme Engine
 
 *   **Framework**: [Next.js 16](https://nextjs.org/) (App Router) — Because being up-to-date is a lifestyle.
+*   **Database**: [Supabase](https://supabase.com/) (PostgreSQL) — Cloud-powered persistence with Full-Text Search.
 *   **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) — High-fidelity utility-first elegance.
 *   **Animations**: [Motion](https://motion.dev/) — For those buttery-smooth 60fps transitions.
 *   **AI Engine**: [Groq API](https://groq.com/) (Llama-3.3-70b-versatile) — Faster than your trainer.
 *   **Auth**: [Next-Auth](https://next-auth.js.org/) — Secure. Clinical. Premium.
-*   **Persistence**: Local-First Temporal Architecture.
+*   **Architecture**: Database-First RAG (Retrieval-Augmented Generation).
 
 ---
 
@@ -60,6 +61,8 @@ If you’re technically capable (looking at you, CalPal devs), here is how you r
     Create a `.env` file with your tokens:
     ```env
     NEXT_PUBLIC_GROQ_API_KEY=your_key
+    NEXT_PUBLIC_SUPABASE_URL=your_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
     GOOGLE_CLIENT_ID=your_id
     GOOGLE_CLIENT_SECRET=your_secret
     NEXTAUTH_SECRET=your_secret
@@ -75,5 +78,6 @@ If you’re technically capable (looking at you, CalPal devs), here is how you r
 FitnessBunny is a data-driven health ecosystem. It is not responsible for the sudden surge in ego you may experience after realizing how much better this is than CalPal.
 
 <div align="center">
+  <p><b>Created by Joydeep Das</b></p>
   <p><i>Handcrafted with high-fidelity sarcasm by AntiGravity.</i></p>
 </div>
