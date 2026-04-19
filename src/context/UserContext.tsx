@@ -1,19 +1,22 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import useLocalStorage from '../hooks/useLocalStorage';
+import { loadUserData, saveUserData } from '../lib/userPersistence';
 
-interface UserProfile {
+export interface UserProfile {
   name: string;
   email: string;
 }
 
-interface Biometrics {
+export interface Biometrics {
   height: string;
   weight: string;
   age: string;
   gender: string;
 }
 
-interface Macros {
+export interface Macros {
   carbs: string;
   protein: string;
   fat: string;
@@ -78,113 +81,97 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  // Initial States - Neutralized for Practicality
-  const [profile, setProfile] = useState<UserProfile>({ name: '', email: '' });
-  const [biometrics, setBiometrics] = useState<Biometrics>({ height: '', weight: '', age: '', gender: '' });
-  const [macros, setMacros] = useState<Macros>({ carbs: '', protein: '', fat: '' });
-  const [goal, setGoal] = useState('');
-  const [meals, setMeals] = useState<MealEntry[]>([]);
-  const [exercises, setExercises] = useState<ExerciseEntry[]>([]);
-  const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
-  const [waterLogs, setWaterLogs] = useState<WaterLog[]>([]);
+  const { data: session, status } = useSession();
+  const [profile, setProfile] = useLocalStorage<UserProfile>('fb_profile', { name: '', email: '' });
+  const [biometrics, setBiometrics] = useLocalStorage<Biometrics>('fb_biometrics', { height: '', weight: '', age: '', gender: '' });
+  const [macros, setMacros] = useLocalStorage<Macros>('fb_macros', { carbs: '', protein: '', fat: '' });
+  const [goal, setGoal] = useLocalStorage<string>('fb_goal', '');
+  const [meals, setMeals] = useLocalStorage<MealEntry[]>('fb_meals', []);
+  const [exercises, setExercises] = useLocalStorage<ExerciseEntry[]>('fb_exercises', []);
+  const [weightLogs, setWeightLogs] = useLocalStorage<WeightLog[]>('fb_weightLogs', []);
+  const [waterLogs, setWaterLogs] = useLocalStorage<WaterLog[]>('fb_waterLogs', []);
   const [dynamicTargets, setDynamicTargets] = useState({ cals: 2000, carbs: 250, protein: 125, fat: 67 });
+  const [remoteSyncReady, setRemoteSyncReady] = useState(false);
 
-  // Persistence Engine: Rehydration (Load from LocalStorage)
-  useEffect(() => {
-    const savedProfile = localStorage.getItem('fb_profile');
-    const savedBio = localStorage.getItem('fb_biometrics');
-    const savedMeals = localStorage.getItem('fb_meals');
-    const savedExercises = localStorage.getItem('fb_exercises');
-    const savedWeight = localStorage.getItem('fb_weightLogs');
-    const savedWater = localStorage.getItem('fb_waterLogs');
-    const savedGoal = localStorage.getItem('fb_goal');
-
-    if (savedProfile) setProfile(JSON.parse(savedProfile));
-    if (savedBio) setBiometrics(JSON.parse(savedBio));
-    if (savedMeals) setMeals(JSON.parse(savedMeals));
-    if (savedExercises) setExercises(JSON.parse(savedExercises));
-    if (savedWeight) setWeightLogs(JSON.parse(savedWeight));
-    if (savedWater) setWaterLogs(JSON.parse(savedWater));
-    if (savedGoal) setGoal(savedGoal);
-  }, []);
-
-  // Persistence Engine: Dehydration (Save to LocalStorage)
-  useEffect(() => {
-    if (profile.name) localStorage.setItem('fb_profile', JSON.stringify(profile));
-  }, [profile]);
+  const currentEmail = session?.user?.email;
+  const currentName = session?.user?.name ?? profile.name;
 
   useEffect(() => {
-    if (biometrics.weight) localStorage.setItem('fb_biometrics', JSON.stringify(biometrics));
-  }, [biometrics]);
-
-  useEffect(() => {
-    localStorage.setItem('fb_meals', JSON.stringify(meals));
-  }, [meals]);
-
-  useEffect(() => {
-    localStorage.setItem('fb_exercises', JSON.stringify(exercises));
-  }, [exercises]);
-
-  useEffect(() => {
-    localStorage.setItem('fb_weightLogs', JSON.stringify(weightLogs));
-  }, [weightLogs]);
-
-  useEffect(() => {
-    localStorage.setItem('fb_waterLogs', JSON.stringify(waterLogs));
-  }, [waterLogs]);
-
-  useEffect(() => {
-    if (goal) localStorage.setItem('fb_goal', goal);
-  }, [goal]);
-
-  useEffect(() => {
-    // Mifflin-St Jeor Formula
-    const w = parseFloat(biometrics.weight);
-    const h = parseFloat(biometrics.height);
-    const a = parseInt(biometrics.age);
-    if (isNaN(w) || isNaN(h) || isNaN(a)) return;
-
-    let bmr = (10 * w) + (6.25 * h) - (5 * a);
-    bmr = biometrics.gender === 'Male' ? bmr + 5 : bmr - 161;
-
-    // TDEE (Assume moderate activity multiplier)
-    const multiplier = 1.375;
-    let tdee = bmr * multiplier;
-
-    // Adjust based on goal
-    let targetCals = tdee;
-    if (goal.toLowerCase().includes('lose')) targetCals -= 500;
-    if (goal.toLowerCase().includes('gain')) targetCals += 400;
-
-    // Safety Floor
-    const floor = biometrics.gender === 'Male' ? 1500 : 1200;
-    targetCals = Math.max(targetCals, floor);
-
-    // Macro Split
-    let pRatio = 0.3; 
-    let cRatio = 0.45;
-    let fRatio = 0.25;
-
-    if (goal.toLowerCase().includes('gain')) {
-      pRatio = 0.35; cRatio = 0.45; fRatio = 0.2;
+    if (!currentEmail) {
+      return;
     }
 
-    setDynamicTargets({
-      cals: Math.round(targetCals),
-      carbs: Math.round((targetCals * cRatio) / 4),
-      protein: Math.round((targetCals * pRatio) / 4),
-      fat: Math.round((targetCals * fRatio) / 9)
+    const loadRemoteData = async () => {
+      const remoteData = await loadUserData(currentEmail);
+      if (remoteData) {
+        setProfile({ name: remoteData.name || currentName, email: currentEmail });
+        setBiometrics(remoteData.biometrics);
+        setMacros(remoteData.macros);
+        setGoal(remoteData.goal ?? '');
+        setMeals(remoteData.meals ?? []);
+        setExercises(remoteData.exercises ?? []);
+        setWeightLogs(remoteData.weight_logs ?? []);
+        setWaterLogs(remoteData.water_logs ?? []);
+      } else {
+        await saveUserData(currentEmail, {
+          name: currentName,
+          biometrics,
+          macros,
+          goal,
+          meals,
+          exercises,
+          weight_logs: weightLogs,
+          water_logs: waterLogs
+        });
+      }
+      setRemoteSyncReady(true);
+    };
+
+    loadRemoteData();
+  }, [currentEmail]);
+
+  useEffect(() => {
+    if (!currentEmail || status === 'loading' || !remoteSyncReady) {
+      return;
+    }
+
+    saveUserData(currentEmail, {
+      name: profile.name || currentName,
+      biometrics,
+      macros,
+      goal,
+      meals,
+      exercises,
+      weight_logs: weightLogs,
+      water_logs: waterLogs
     });
-  }, [biometrics, goal]);
+  }, [currentEmail, currentName, status, remoteSyncReady, profile, biometrics, macros, goal, meals, exercises, weightLogs, waterLogs]);
+
+  const normalizeBiometrics = (updates: Partial<Biometrics>): Biometrics => {
+    const next = { ...biometrics, ...updates };
+    const allowedGenders = ['Male', 'Female', 'Other'];
+
+    return {
+      height: next.height.trim(),
+      weight: next.weight.trim(),
+      age: next.age.trim(),
+      gender: allowedGenders.includes(next.gender) ? next.gender : next.gender.trim()
+    };
+  };
 
   const updateProfile = (updates: Partial<UserProfile>) => {
     setProfile(prev => ({ ...prev, ...updates }));
   };
 
   const updateBiometrics = (updates: Partial<Biometrics>) => {
-    setBiometrics(prev => ({ ...prev, ...updates }));
-    if (updates.weight) {
-      addWeightLog(parseFloat(updates.weight));
+    const nextBiometrics = normalizeBiometrics(updates);
+    setBiometrics(nextBiometrics);
+
+    if (nextBiometrics.weight) {
+      const weight = parseFloat(nextBiometrics.weight);
+      if (!Number.isNaN(weight)) {
+        addWeightLog(weight);
+      }
     }
   };
 
@@ -211,19 +198,19 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addExercise = (ex: Omit<ExerciseEntry, 'id' | 'time' | 'fullDate'>, date?: string) => {
-    const newEx: ExerciseEntry = {
+    const newExercise: ExerciseEntry = {
       ...ex,
       id: Math.random().toString(36).substr(2, 9),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       fullDate: date || new Date().toISOString().split('T')[0]
     };
-    setExercises(prev => [newEx, ...prev]);
+    setExercises(prev => [newExercise, ...prev]);
   };
 
   const addWeightLog = (weight: number, date?: string) => {
-    setWeightLogs(prev => [{ 
-      date: date || new Date().toISOString(), 
-      weight 
+    setWeightLogs(prev => [{
+      date: date || new Date().toISOString(),
+      weight
     }, ...prev]);
   };
 
@@ -232,18 +219,72 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setWaterLogs(prev => {
       const existing = prev.find(l => l.date === targetDate);
       if (existing) {
-        return prev.map(l => l.date === targetDate ? { ...l, glasses } : l);
+        return prev.map(l => (l.date === targetDate ? { ...l, glasses } : l));
       }
       return [{ date: targetDate, glasses }, ...prev];
     });
   };
 
+  useEffect(() => {
+    const w = parseFloat(biometrics.weight);
+    const h = parseFloat(biometrics.height);
+    const a = parseInt(biometrics.age, 10);
+    if (isNaN(w) || isNaN(h) || isNaN(a)) return;
+
+    let bmr = 10 * w + 6.25 * h - 5 * a;
+    bmr = biometrics.gender === 'Male' ? bmr + 5 : bmr - 161;
+
+    const multiplier = 1.375;
+    let tdee = bmr * multiplier;
+    let targetCals = tdee;
+
+    if (goal.toLowerCase().includes('lose')) targetCals -= 500;
+    if (goal.toLowerCase().includes('gain')) targetCals += 400;
+
+    const floor = biometrics.gender === 'Male' ? 1500 : 1200;
+    targetCals = Math.max(targetCals, floor);
+
+    let pRatio = 0.3;
+    let cRatio = 0.45;
+    let fRatio = 0.25;
+
+    if (goal.toLowerCase().includes('gain')) {
+      pRatio = 0.35;
+      cRatio = 0.45;
+      fRatio = 0.2;
+    }
+
+    setDynamicTargets({
+      cals: Math.round(targetCals),
+      carbs: Math.round((targetCals * cRatio) / 4),
+      protein: Math.round((targetCals * pRatio) / 4),
+      fat: Math.round((targetCals * fRatio) / 9)
+    });
+  }, [biometrics, goal]);
+
   return (
-    <UserContext.Provider value={{ 
-      profile, biometrics, macros, goal, meals, exercises, weightLogs, waterLogs, dynamicTargets,
-      updateProfile, updateBiometrics, updateMacros, updateGoal,
-      addMeal, deleteMeal, addExercise, addWeightLog, updateWater
-    }}>
+    <UserContext.Provider
+      value={{
+        profile,
+        biometrics,
+        macros,
+        goal,
+        meals,
+        exercises,
+        weightLogs,
+        waterLogs,
+        dynamicTargets,
+        updateProfile,
+        updateBiometrics,
+        updateMacros,
+        updateGoal,
+        addMeal,
+        deleteMeal,
+        addExercise,
+        addWeightLog,
+        updateWater
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

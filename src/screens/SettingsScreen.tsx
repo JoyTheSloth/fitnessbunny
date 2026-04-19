@@ -60,7 +60,7 @@ export default function SettingsScreen() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-5 p-6 bg-white/10 backdrop-blur-3xl rounded-[2.5rem] border border-white/20 shadow-2xl"
+            className="flex items-center gap-5 p-6 bg-white/10 rounded-[2.5rem] border border-white/20 shadow-2xl"
           >
             <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#8de15c] to-[#309af0] flex items-center justify-center text-white text-2xl font-black shadow-lg">
               {profile.name?.[0] || 'B'}
@@ -85,7 +85,7 @@ export default function SettingsScreen() {
                 className="space-y-3"
               >
                 <h3 className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] ml-6">{section.title}</h3>
-                <div className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-white shadow-xl shadow-black/5">
+                <div className="bg-white/95 rounded-[2.5rem] overflow-hidden border border-white shadow-xl shadow-black/5">
                   {section.items.map((item, i) => (
                     <button 
                       key={item.label}

@@ -98,7 +98,7 @@ export default function PullToRefresh({ onRefresh, children }: PullToRefreshProp
               <RefreshCw className="w-5 h-5 text-[#8de15c]" strokeWidth={3} />
             ) : (
               <img 
-                src="input_file_1.png" 
+                src="/1.png" 
                 alt="Fitness Bunny" 
                 className="w-10 h-10 object-contain"
                 referrerPolicy="no-referrer"

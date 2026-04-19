@@ -1,6 +1,14 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
+if (!process.env.NEXTAUTH_URL && process.env.NODE_ENV === 'development') {
+  process.env.NEXTAUTH_URL = 'http://localhost:3000';
+}
+
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'development') {
+  process.env.NEXTAUTH_SECRET = 'dev-secret';
+}
+
 const handler = NextAuth({
   providers: [
     GoogleProvider({
@@ -9,7 +17,7 @@ const handler = NextAuth({
     }),
   ],
   pages: {
-    signIn: "/", // Redirect back to welcome screen
+    signIn: "/",
   },
   callbacks: {
     async session({ session, token }) {

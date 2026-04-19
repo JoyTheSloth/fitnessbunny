@@ -34,6 +34,7 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
   const [currentPage, setCurrentPage] = useState<SubPage>('main');
   const [aiCoach, setAiCoach] = useState(true);
   const [smartNotif, setSmartNotif] = useState(true);
+  const [genderModalOpen, setGenderModalOpen] = useState(false);
 
   // Remaining UI states
   const [activity, setActivity] = useState('Highly Active');
@@ -112,7 +113,7 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
       </div>
 
       {/* Primary Telemetry Grid */}
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {[
           { label: 'Nutrition', icon: Utensils, page: 'macros', color: '#3B82F6' },
           { label: 'Energy Level', icon: Flame, page: 'activity', color: '#F59E0B' }
@@ -159,19 +160,24 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
         <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] ml-4">Body Profile</h5>
         <div className="bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm">
           {[
-            { label: 'Gender', icon: User, value: biometrics.gender, page: 'biometrics' },
-            { label: 'Height', icon: Activity, value: biometrics.height + ' cm', page: 'biometrics' },
-            { label: 'Age', icon: Calendar, value: biometrics.age, page: 'biometrics' },
-            { label: 'Weight', icon: Weight, value: biometrics.weight + ' kg', page: 'biometrics' },
-            { label: 'Activity level', icon: Flame, value: activity, page: 'activity' },
-            { label: 'Macro Goals', icon: PieChart, value: `${macros.carbs}C ${macros.protein}P ${macros.fat}F`, page: 'macros' },
-            { label: 'Units', icon: Settings, value: 'kg ft/in', page: 'main' },
-            { label: 'Goals', icon: Target, value: goal, page: 'main' }
+            { label: 'Gender', icon: User, value: biometrics.gender, action: 'gender' },
+            { label: 'Height', icon: Activity, value: biometrics.height + ' cm', action: 'biometrics' },
+            { label: 'Age', icon: Calendar, value: biometrics.age, action: 'biometrics' },
+            { label: 'Weight', icon: Weight, value: biometrics.weight + ' kg', action: 'biometrics' },
+            { label: 'Activity level', icon: Flame, value: activity, action: 'activity' },
+            { label: 'Macro Goals', icon: PieChart, value: `${macros.carbs}C ${macros.protein}P ${macros.fat}F`, action: 'macros' },
+            { label: 'Units', icon: Settings, value: 'kg ft/in', action: 'main' }
           ].map((item, i, arr) => (
             <React.Fragment key={item.label}>
               <button 
-                onClick={() => item.page !== 'main' && setCurrentPage(item.page as SubPage)}
-                className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors group"
+                onClick={() => {
+                  if (item.action === 'gender') {
+                    setGenderModalOpen(true);
+                    return;
+                  }
+                  if (item.action !== 'main') setCurrentPage(item.action as SubPage);
+                }}
+                className="w-full min-w-0 flex items-center justify-between p-5 hover:bg-gray-50 transition-colors group"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-white border border-gray-50">
@@ -190,14 +196,46 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
         </div>
       </div>
 
+      {/* Body Profile Gender Dialog */}
+      {genderModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center">
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Select Gender</p>
+                <h3 className="mt-2 text-lg font-black text-gray-900">Choose your body profile gender</h3>
+              </div>
+              <button onClick={() => setGenderModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">Cancel</button>
+            </div>
+            <div className="space-y-3">
+              {['Male', 'Female', 'Other'].map((option) => (
+                <button
+                  key={option}
+                  onClick={() => {
+                    updateBiometrics({ gender: option });
+                    setGenderModalOpen(false);
+                  }}
+                  className="w-full rounded-3xl border border-gray-200 px-5 py-4 text-left text-sm font-semibold text-gray-900 hover:border-gray-300 hover:bg-gray-50 transition"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* System Integrity */}
       <div className="space-y-4">
         <h5 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em] ml-4">System Integrity</h5>
         <div className="bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm">
-          <button className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={() => window.open('https://joydeepdas-portfolio.vercel.app/', '_blank', 'noopener noreferrer')}
+            className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+          >
             <div className="flex items-center gap-4 text-gray-900">
               <Mail size={18} className="text-gray-400" />
-              <span className="text-sm font-black uppercase tracking-widest">Support Portal</span>
+              <span className="text-sm font-black uppercase tracking-widest">About Bunny</span>
             </div>
             <ChevronRight size={18} className="text-gray-300" />
           </button>
@@ -221,7 +259,7 @@ export default function ProfileScreen({ onOpenPremium }: { onOpenPremium?: () =>
   const renderBiometrics = () => (
     <motion.div variants={containerVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
        <div className="p-8 rounded-[3rem] bg-white border border-gray-100 shadow-sm space-y-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Height (cm)</label>
               <input 

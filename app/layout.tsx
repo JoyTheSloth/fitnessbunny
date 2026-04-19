@@ -5,6 +5,9 @@ export const metadata = {
   title: "Fitness Bunny",
   description: "Your premium fitness diary",
   manifest: "/manifest.json",
+};
+
+export const viewport = {
   themeColor: "#8de15c",
 };
 

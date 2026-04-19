@@ -11,14 +11,30 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
   
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const todayIndex = new Date().getDay(); // 0-6
-
-  const totalFoodCals = meals.reduce((acc, m) => acc + m.calories, 0);
-  const totalCarbs = meals.reduce((acc, m) => acc + m.carbs, 0);
-  const totalProtein = meals.reduce((acc, m) => acc + m.protein, 0);
-  const totalFat = meals.reduce((acc, m) => acc + m.fat, 0);
-  const totalFiber = meals.reduce((acc, m) => acc + (m.fiber || 0), 0);
+  const selectedDateStr = currentDate.toISOString().split('T')[0];
+  const selectedDateMeals = meals.filter(m => m.fullDate === selectedDateStr);
+  const totalFoodCals = selectedDateMeals.reduce((acc, m) => acc + m.calories, 0);
+  const totalCarbs = selectedDateMeals.reduce((acc, m) => acc + m.carbs, 0);
+  const totalProtein = selectedDateMeals.reduce((acc, m) => acc + m.protein, 0);
+  const totalFat = selectedDateMeals.reduce((acc, m) => acc + m.fat, 0);
+  const totalFiber = selectedDateMeals.reduce((acc, m) => acc + (m.fiber || 0), 0);
+  
+  const weekStart = new Date(currentDate);
+  weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+  const weekDays = Array.from({ length: 7 }).map((_, idx) => {
+    const date = new Date(weekStart);
+    date.setDate(weekStart.getDate() + idx);
+    const dateStr = date.toISOString().split('T')[0];
+    const dailyMeals = meals.filter(m => m.fullDate === dateStr);
+    return {
+      date,
+      dateStr,
+      calories: dailyMeals.reduce((acc, m) => acc + m.calories, 0),
+      carbs: dailyMeals.reduce((acc, m) => acc + m.carbs, 0),
+      protein: dailyMeals.reduce((acc, m) => acc + m.protein, 0),
+      fat: dailyMeals.reduce((acc, m) => acc + m.fat, 0),
+    };
+  });
   
   const goalCals = dynamicTargets.cals;
   const macroTotal = (totalCarbs * 4) + (totalProtein * 4) + (totalFat * 9) || 1;
@@ -26,10 +42,17 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
   const proteinPct = Math.round(((totalProtein * 4) / macroTotal) * 100);
   const fatPct = Math.max(0, 100 - carbPct - proteinPct);
 
-  // Targets for progress bars
   const targetProtein = dynamicTargets.protein;
   const targetCarbs = dynamicTargets.carbs;
   const targetFat = dynamicTargets.fat;
+  const targetMacroTotal = (targetCarbs * 4) + (targetProtein * 4) + (targetFat * 9) || 1;
+  const targetCarbPct = Math.round(((targetCarbs * 4) / targetMacroTotal) * 100);
+  const targetProteinPct = Math.round(((targetProtein * 4) / targetMacroTotal) * 100);
+  const targetFatPct = Math.max(0, 100 - targetCarbPct - targetProteinPct);
+  const avgFoodCals = Math.round(weekDays.reduce((sum, day) => sum + day.calories, 0) / weekDays.length || 0);
+  const netChange = avgFoodCals - goalCals;
+  const netChangeLabel = `${netChange >= 0 ? '+' : ''}${netChange} Cal`;
+  const netChangePositive = netChange >= 0;
 
   return (
     <div className="h-full relative overflow-hidden">
@@ -82,14 +105,14 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                 <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#89979b] bg-[#f0f3f4] px-3 py-1.5 rounded-xl">Last 7 Days</div>
               </div>
               
-              <div className="flex items-center gap-6">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="relative w-28 h-28 flex items-center justify-center">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
+                <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90 absolute">
                       <circle className="text-[#f0f3f4] stroke-current" cx="56" cy="56" r="48" strokeWidth="10" fill="none" />
                       <motion.circle 
                         initial={{ strokeDashoffset: 301.6 }}
-                        animate={{ strokeDashoffset: 301.6 * (1 - Math.min(totalFoodCals / goalCals, 1)) }}
+                        animate={{ strokeDashoffset: 301.6 * (1 - Math.min(avgFoodCals / goalCals, 1)) }}
                         transition={{ duration: 1.5, ease: "easeOut" }}
                         className="text-[#8de15c] stroke-current" 
                         cx="56" cy="56" r="48" strokeWidth="10" fill="none" 
@@ -97,35 +120,32 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                       />
                     </svg>
                     <div className="flex flex-col items-center justify-center text-center mt-1 z-10">
-                      <span className="text-2xl font-black text-[#3a4746] leading-none">{totalFoodCals}</span>
-                      <span className="text-[9px] text-[#89979b] font-extrabold uppercase mt-1 tracking-wider">Today</span>
+                      <span className="text-3xl font-black text-[#3a4746] leading-none">{avgFoodCals}</span>
+                      <span className="text-[9px] text-[#89979b] font-extrabold uppercase mt-1 tracking-wider">AVG CAL</span>
                     </div>
                   </div>
                   
-                  <div className="bg-white border border-[#eff3f4] rounded-xl px-4 py-2 flex flex-col items-center shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
+                  <div className="bg-white border border-[#eff3f4] rounded-[2rem] px-4 py-3 flex flex-col items-center shadow-[0_10px_25px_rgba(141,225,92,0.08)]">
                     <span className="text-[9px] text-[#89979b] font-extrabold uppercase tracking-wider">Net Change</span>
-                    <span className="text-xs font-bold text-[#3a4746]">{totalFoodCals - goalCals > 0 ? '+' : ''}{totalFoodCals - goalCals} Cal <span className={`${totalFoodCals - goalCals > 0 ? 'text-red-400' : 'text-[#8de15c]'} text-[10px]`}>{totalFoodCals - goalCals > 0 ? '▲' : '▼'}</span></span>
+                    <span className="text-sm font-black text-[#3a4746] mt-1">{netChangeLabel} <span className={`${netChangePositive ? 'text-red-400' : 'text-[#8de15c]'} text-[10px]`}>{netChangePositive ? '▲' : '▼'}</span></span>
                   </div>
                 </div>
 
                 <div className="flex-1 flex justify-between items-end h-28 px-1">
-                  {days.map((day, i) => {
-                    // Mock heights for other days, actual for today
-                    const mockHeights = [45, 60, 55, 80, 70, 65, 90];
-                    const actualHeight = Math.min((totalFoodCals / goalCals) * 100, 100);
-                    const h = i === todayIndex ? actualHeight : mockHeights[i];
-                    const isToday = i === todayIndex;
+                  {weekDays.map((day, i) => {
+                    const h = Math.max((day.calories / goalCals) * 100, 3);
+                    const isToday = day.date.toDateString() === currentDate.toDateString();
                     return (
-                      <div key={day} className="flex flex-col items-center gap-3">
+                      <div key={day.dateStr} className="flex flex-col items-center gap-3">
                         <div className="w-[12px] bg-[#f0f3f4] rounded-full relative overflow-hidden h-24">
                           <motion.div 
                             initial={{ height: 0 }}
                             animate={{ height: `${h}%` }}
-                            transition={{ duration: 1, delay: i * 0.1 }}
+                            transition={{ duration: 1, delay: i * 0.05 }}
                             className={`absolute bottom-0 left-0 w-full rounded-full ${isToday ? 'bg-[#8de15c]' : 'bg-[#dce5e7]'} opacity-80`}
                           />
                         </div>
-                        <span className={`${isToday ? 'text-[#8de15c] font-black' : 'text-[#a4afb3] font-bold'} text-[10px]`}>{day}</span>
+                        <span className={`${isToday ? 'text-[#8de15c] font-black' : 'text-[#a4afb3] font-bold'} text-[10px]`}>{day.date.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1)}</span>
                       </div>
                     );
                   })}
@@ -147,9 +167,9 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                 <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#8de15c] bg-[#eefaf2] px-3 py-1.5 rounded-xl">Optimal</div>
               </div>
               
-              <div className="flex gap-8 items-center">
-                <div className="flex flex-col items-center gap-6">
-                  <div className="relative w-32 h-32">
+              <div className="flex flex-col gap-8 lg:flex-row lg:items-center w-full">
+                <div className="flex flex-col items-center gap-6 w-full lg:w-auto">
+                  <div className="relative w-28 h-28 sm:w-32 sm:h-32">
                     <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
                       {/* Carbs */}
                       <circle cx="50" cy="50" r="40" fill="transparent" stroke="#edc541" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - (carbPct / 100))} strokeLinecap="round" />
@@ -183,7 +203,7 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
                       <span className="flex items-center gap-2 text-[#edc541]"><Apple className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Carbs</span></span>
-                      <span>{carbPct}% <span className="text-[#89979b] font-medium ml-1">/ 50% Target</span></span>
+                      <span>{carbPct}% <span className="text-[#89979b] font-medium ml-1">/ {targetCarbPct}% Target</span></span>
                     </div>
                     <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
                       <motion.div 
@@ -198,7 +218,7 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
                       <span className="flex items-center gap-2 text-[#309af0]"><Egg className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Protein</span></span>
-                      <span>{proteinPct}% <span className="text-[#89979b] font-medium ml-1">/ 35% Target</span></span>
+                      <span>{proteinPct}% <span className="text-[#89979b] font-medium ml-1">/ {targetProteinPct}% Target</span></span>
                     </div>
                     <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
                       <motion.div 
@@ -213,7 +233,7 @@ export default function InsightsScreen({ onOpenPremium }: { onOpenPremium?: () =
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] font-extrabold uppercase tracking-wider text-[#3a4746]">
                       <span className="flex items-center gap-2 text-[#ffa024]"><Flame className="w-3.5 h-3.5" fill="currentColor" /> <span className="text-[#3a4746]">Fat</span></span>
-                      <span>{fatPct}% <span className="text-[#89979b] font-medium ml-1">/ 15% Target</span></span>
+                      <span>{fatPct}% <span className="text-[#89979b] font-medium ml-1">/ {targetFatPct}% Target</span></span>
                     </div>
                     <div className="h-2.5 w-full bg-[#f0f3f4] rounded-full overflow-hidden relative p-[1px]">
                       <motion.div 
